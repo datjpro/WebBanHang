@@ -1,0 +1,60 @@
+@model Product
+
+@{
+    ViewData["Title"] = "Xóa sản phẩm";
+}
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-danger text-white">
+                    <h4>@ViewData["Title"]</h4>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-warning" role="alert">
+                        <strong>Cảnh báo!</strong> Bạn có chắc chắn muốn xóa sản phẩm này không? Hành động này không thể hoàn tác.
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-4">
+                            @if (!string.IsNullOrEmpty(Model.ImageUrl))
+                            {
+                                <img src="@Model.ImageUrl" class="img-fluid rounded" alt="@Model.Name">
+                            }
+                            else
+                            {
+                                <div class="bg-light d-flex align-items-center justify-content-center rounded" style="height: 200px;">
+                                    <span class="text-muted">Không có hình ảnh</span>
+                                </div>
+                            }
+                        </div>
+                        <div class="col-md-8">
+                            <dl class="row">
+                                <dt class="col-sm-3">Tên sản phẩm:</dt>
+                                <dd class="col-sm-9">@Model.Name</dd>
+                                
+                                <dt class="col-sm-3">Danh mục:</dt>
+                                <dd class="col-sm-9">@Model.Category?.Name</dd>
+                                
+                                <dt class="col-sm-3">Giá:</dt>
+                                <dd class="col-sm-9">@Model.Price.ToString("C", new System.Globalization.CultureInfo("vi-VN"))</dd>
+                                
+                                <dt class="col-sm-3">Mô tả:</dt>
+                                <dd class="col-sm-9">@Model.Description</dd>
+                            </dl>
+                        </div>
+                    </div>
+                    
+                    <form asp-action="Delete">
+                        <input type="hidden" asp-for="Id" />
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a asp-action="Index" class="btn btn-secondary me-md-2">Hủy</a>
+                            <button type="submit" class="btn btn-danger">Xác nhận xóa</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

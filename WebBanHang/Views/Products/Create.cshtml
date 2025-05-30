@@ -1,0 +1,186 @@
+@model Product
+
+@{
+    ViewData["Title"] = "Thêm sản phẩm mới";
+}
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h4>@ViewData["Title"]</h4>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Create">
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                        
+                        <div class="mb-3">
+                            <label asp-for="Name" class="form-label">Tên sản phẩm</label>
+                            <input asp-for="Name" class="form-control" />
+                            <span asp-validation-for="Name" class="text-danger"></span>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label asp-for="CategoryId" class="form-label">Danh mục</label>
+                            <select asp-for="CategoryId" class="form-select">
+                                <option value="">-- Chọn danh mục --</option>
+                                @foreach (var category in (ViewBag.Categories as List<Category>) ?? new List<Category>())
+                                {
+                                    <option value="@category.Id">@category.Name</option>
+                                }
+                            </select>
+                            <span asp-validation-for="CategoryId" class="text-danger"></span>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label asp-for="Price" class="form-label">Giá (VNĐ)</label>
+                            <input asp-for="Price" class="form-control" type="number" step="0.01" />
+                            <span asp-validation-for="Price" class="text-danger"></span>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label asp-for="Description" class="form-label">Mô tả</label>
+                            <textarea asp-for="Description" class="form-control" rows="4"></textarea>
+                            <span asp-validation-for="Description" class="text-danger"></span>
+                        </div>                          <div class="mb-3">
+                            <label asp-for="ImageUrl" class="form-label">URL hình ảnh chính</label>
+                            <input asp-for="ImageUrl" class="form-control" type="url" id="mainImageUrl" oninput="updateMainImagePreview()" />
+                            <span asp-validation-for="ImageUrl" class="text-danger"></span>
+                            <div class="form-text">Nhập URL của hình ảnh chính sản phẩm</div>
+                        </div>
+                        
+                        <div class="mb-3" id="mainImagePreviewContainer" style="display: none;">
+                            <label class="form-label">Xem trước hình ảnh chính:</label>
+                            <div>
+                                <img id="mainImagePreview" class="img-thumbnail" style="max-width: 200px;" 
+                                     alt="Preview" onerror="this.parentElement.parentElement.style.display='none'">
+                                <div id="mainImageError" style="display: none;" class="text-danger">Không thể tải hình ảnh từ URL này</div>
+                            </div>
+                        </div>                        <div class="mb-3">
+                            <label class="form-label">Hình ảnh bổ sung</label>
+                            <div id="imageUrlsContainer">
+                                <div class="input-group mb-2">
+                                    <input type="url" name="imageUrls" class="form-control additional-image-input" 
+                                           placeholder="URL hình ảnh bổ sung" oninput="updateAdditionalImagePreview(this)" />
+                                    <button type="button" class="btn btn-outline-danger" onclick="removeImageUrl(this)">Xóa</button>
+                                </div>
+                            </div>
+                            <button type="button" class="btn btn-outline-primary btn-sm" onclick="addImageUrl()">Thêm ảnh mới</button>
+                            <div class="form-text">Thêm các URL hình ảnh bổ sung cho sản phẩm</div>
+                        </div>
+                        
+                        <div class="mb-3" id="additionalImagesPreview" style="display: none;">
+                            <label class="form-label">Xem trước hình ảnh bổ sung:</label>
+                            <div class="row" id="additionalImagesContainer">
+                            </div>
+                        </div>
+                        
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a asp-action="Index" class="btn btn-secondary me-md-2">Hủy</a>
+                            <button type="submit" class="btn btn-primary">Thêm sản phẩm</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        // Cập nhật preview cho hình ảnh chính
+        function updateMainImagePreview() {
+            const input = document.getElementById('mainImageUrl');
+            const preview = document.getElementById('mainImagePreview');
+            const container = document.getElementById('mainImagePreviewContainer');
+            const error = document.getElementById('mainImageError');
+            
+            if (input.value.trim() === '') {
+                container.style.display = 'none';
+                error.style.display = 'none';
+                return;
+            }
+            
+            // Tạo một image element mới để test URL
+            const testImg = new Image();
+            testImg.onload = function() {
+                preview.src = input.value;
+                container.style.display = 'block';
+                error.style.display = 'none';
+            };
+            testImg.onerror = function() {
+                container.style.display = 'none';
+                error.style.display = 'block';
+            };
+            testImg.src = input.value;
+        }
+
+        // Cập nhật preview cho hình ảnh bổ sung
+        function updateAdditionalImagePreview(input) {
+            const container = document.getElementById('additionalImagesContainer');
+            const previewSection = document.getElementById('additionalImagesPreview');
+            const inputs = document.querySelectorAll('.additional-image-input');
+            
+            // Xóa tất cả preview hiện tại
+            container.innerHTML = '';
+            
+            let hasValidImages = false;
+            
+            // Tạo preview cho tất cả input có giá trị
+            inputs.forEach((inp, index) => {
+                if (inp.value.trim() !== '') {
+                    hasValidImages = true;
+                    createImagePreview(inp.value, container, index);
+                }
+            });
+            
+            // Hiển thị/ẩn section preview
+            previewSection.style.display = hasValidImages ? 'block' : 'none';
+        }
+
+        // Tạo element preview cho một hình ảnh
+        function createImagePreview(url, container, index) {
+            const colDiv = document.createElement('div');
+            colDiv.className = 'col-3 mb-2';
+            
+            const img = document.createElement('img');
+            img.className = 'img-thumbnail additional-preview';
+            img.style.width = '100%';
+            img.style.height = '100px';
+            img.style.objectFit = 'cover';
+            img.alt = 'Preview';
+            
+            // Test URL trước khi hiển thị
+            const testImg = new Image();
+            testImg.onload = function() {
+                img.src = url;
+                colDiv.appendChild(img);
+                container.appendChild(colDiv);
+            };
+            testImg.onerror = function() {
+                // Không hiển thị gì nếu URL không hợp lệ
+            };
+            testImg.src = url;
+        }
+
+        function addImageUrl() {
+            const container = document.getElementById('imageUrlsContainer');
+            const newInputGroup = document.createElement('div');
+            newInputGroup.className = 'input-group mb-2';
+            newInputGroup.innerHTML = `
+                <input type="url" name="imageUrls" class="form-control additional-image-input" 
+                       placeholder="URL hình ảnh bổ sung" oninput="updateAdditionalImagePreview(this)" />
+                <button type="button" class="btn btn-outline-danger" onclick="removeImageUrl(this)">Xóa</button>
+            `;
+            container.appendChild(newInputGroup);
+        }
+
+        function removeImageUrl(button) {
+            button.parentElement.remove();
+            // Cập nhật lại preview sau khi xóa
+            updateAdditionalImagePreview();
+        }
+    </script>
+}

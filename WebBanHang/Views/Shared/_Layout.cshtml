@@ -1,0 +1,273 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - DATJ MARKET</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/WebBanHang.styles.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+    @await RenderSectionAsync("Styles", required: false)
+</head>
+<body class="luxury-body">
+    <!-- Elegant Loading Screen -->
+    <div id="loading-screen" class="luxury-loading">
+        <div class="loading-content">
+            <div class="luxury-spinner">
+                <div class="spinner-ring"></div>
+                <div class="spinner-ring"></div>
+                <div class="spinner-ring"></div>
+            </div>
+            <h2 class="loading-brand">DATJ MARKET</h2>
+            <p class="loading-tagline">Elevating Your Shopping Experience</p>
+        </div>
+    </div>    <!-- Premium Navigation Bar -->
+    <nav class="navbar navbar-expand-lg luxury-navbar fixed-top">
+        <div class="container">
+            <a class="navbar-brand luxury-brand" asp-area="" asp-controller="Home" asp-action="Index">
+                <div class="brand-container">
+                    <i class="fas fa-crown brand-crown"></i>
+                    <div class="brand-text-container">
+                        <span class="brand-name">DATJ</span>
+                        <span class="brand-subtitle">MARKET</span>
+                    </div>
+                </div>
+            </a>
+            
+            <button class="navbar-toggler luxury-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="toggler-line"></span>
+                <span class="toggler-line"></span>
+                <span class="toggler-line"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav mx-auto">
+                    <li class="nav-item">
+                        <a class="nav-link luxury-nav-link" asp-area="" asp-controller="Home" asp-action="Index">
+                            <span class="nav-text">Trang chủ</span>
+                            <div class="nav-underline"></div>
+                        </a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link luxury-nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            <span class="nav-text">Sản phẩm</span>
+                            <div class="nav-underline"></div>
+                        </a>
+                        <ul class="dropdown-menu luxury-dropdown">
+                            <li><a class="dropdown-item" asp-controller="Products" asp-action="Index">Tất cả sản phẩm</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="#">Sản phẩm mới</a></li>
+                            <li><a class="dropdown-item" href="#">Sản phẩm bán chạy</a></li>
+                            <li><a class="dropdown-item" href="#">Sản phẩm giảm giá</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link luxury-nav-link" asp-area="" asp-controller="Categories" asp-action="Index">
+                            <span class="nav-text">Danh mục</span>
+                            <div class="nav-underline"></div>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link luxury-nav-link" href="#">
+                            <span class="nav-text">Về chúng tôi</span>
+                            <div class="nav-underline"></div>
+                        </a>
+                    </li>
+                </ul>
+                
+                <div class="navbar-actions">
+                    <button class="action-btn search-btn" data-bs-toggle="modal" data-bs-target="#searchModal">
+                        <i class="fas fa-search"></i>
+                    </button>
+                    <button class="action-btn wishlist-btn">
+                        <i class="fas fa-heart"></i>
+                        <span class="action-badge">2</span>
+                    </button>
+                    <button class="action-btn cart-btn">
+                        <i class="fas fa-shopping-bag"></i>
+                        <span class="action-badge">0</span>
+                    </button>
+                    <button class="action-btn profile-btn">
+                        <i class="fas fa-user"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav><!-- Main Content -->
+    <div class="main-content">
+        <main role="main">
+            @RenderBody()
+        </main>
+    </div>    <!-- Premium Search Modal -->
+    <div class="modal fade" id="searchModal" tabindex="-1" aria-labelledby="searchModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content luxury-modal">
+                <div class="modal-header luxury-modal-header">
+                    <h5 class="modal-title luxury-modal-title" id="searchModalLabel">
+                        <i class="fas fa-search me-3"></i>Tìm kiếm sản phẩm cao cấp
+                    </h5>
+                    <button type="button" class="btn-close luxury-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body luxury-modal-body">
+                    <form asp-controller="Products" asp-action="Index" method="get">
+                        <div class="luxury-search-container">
+                            <div class="search-input-wrapper">
+                                <i class="fas fa-search search-icon"></i>
+                                <input type="text" name="searchString" class="luxury-search-input" 
+                                       placeholder="Nhập tên sản phẩm bạn muốn tìm...">
+                                <button class="luxury-search-btn" type="submit">
+                                    <span>Tìm kiếm</span>
+                                    <i class="fas fa-arrow-right"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                    <div class="search-suggestions">
+                        <p class="suggestions-title">Từ khóa phổ biến:</p>
+                        <div class="suggestion-tags">
+                            <span class="suggestion-tag">Điện thoại</span>
+                            <span class="suggestion-tag">Laptop</span>
+                            <span class="suggestion-tag">Tai nghe</span>
+                            <span class="suggestion-tag">Đồng hồ</span>
+                            <span class="suggestion-tag">Phụ kiện</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Luxury Footer -->
+    <footer class="luxury-footer">
+        <div class="footer-main">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-4 col-md-6">
+                        <div class="footer-section">
+                            <div class="footer-brand">
+                                <i class="fas fa-crown footer-crown"></i>
+                                <h3>DATJ MARKET</h3>
+                                <p class="footer-tagline">Elevating Your Shopping Experience</p>
+                            </div>
+                            <p class="footer-description">
+                                Chúng tôi mang đến những sản phẩm cao cấp nhất với chất lượng vượt trội 
+                                và dịch vụ khách hàng tận tâm.
+                            </p>
+                            <div class="social-links">
+                                <a href="#" class="social-link"><i class="fab fa-facebook-f"></i></a>
+                                <a href="#" class="social-link"><i class="fab fa-instagram"></i></a>
+                                <a href="#" class="social-link"><i class="fab fa-twitter"></i></a>
+                                <a href="#" class="social-link"><i class="fab fa-linkedin-in"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-2 col-md-6">
+                        <div class="footer-section">
+                            <h5 class="footer-title">Danh mục</h5>
+                            <ul class="footer-links">
+                                <li><a href="#">Điện thoại</a></li>
+                                <li><a href="#">Laptop</a></li>
+                                <li><a href="#">Phụ kiện</a></li>
+                                <li><a href="#">Đồng hồ</a></li>
+                                <li><a href="#">Thời trang</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-lg-2 col-md-6">
+                        <div class="footer-section">
+                            <h5 class="footer-title">Hỗ trợ</h5>
+                            <ul class="footer-links">
+                                <li><a href="#">Liên hệ</a></li>
+                                <li><a href="#">Hướng dẫn mua hàng</a></li>
+                                <li><a href="#">Chính sách đổi trả</a></li>
+                                <li><a href="#">Bảo hành</a></li>
+                                <li><a href="#">FAQ</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-md-6">
+                        <div class="footer-section">
+                            <h5 class="footer-title">Nhận thông tin mới nhất</h5>
+                            <p>Đăng ký để nhận những ưu đãi và sản phẩm mới nhất</p>
+                            <div class="newsletter-form">
+                                <div class="input-group">
+                                    <input type="email" class="form-control newsletter-input" 
+                                           placeholder="Email của bạn...">
+                                    <button class="btn newsletter-btn" type="button">
+                                        <i class="fas fa-paper-plane"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="contact-info">
+                                <div class="contact-item">
+                                    <i class="fas fa-phone"></i>
+                                    <span>+84 123 456 789</span>
+                                </div>
+                                <div class="contact-item">
+                                    <i class="fas fa-envelope"></i>
+                                    <span>support@luxemarket.vn</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <div class="container">
+                <div class="row align-items-center">
+                    <div class="col-md-6">
+                        <p class="copyright">© 2025 DATJ MARKET. All rights reserved.</p>
+                    </div>                    <div class="col-md-6">
+                        <div class="footer-bottom-links">
+                            <a asp-controller="Home" asp-action="Privacy">Chính sách bảo mật</a>
+                            <a href="#">Điều khoản sử dụng</a>
+                            <a href="#">Cookie</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>    
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    
+    <script>
+        // Initialize AOS animations
+        AOS.init({
+            duration: 1000,
+            once: true,
+            offset: 100
+        });
+
+        // Loading screen
+        window.addEventListener('load', function() {
+            setTimeout(function() {
+                document.getElementById('loading-screen').style.opacity = '0';
+                setTimeout(function() {
+                    document.getElementById('loading-screen').style.display = 'none';
+                }, 500);
+            }, 1000);
+        });
+
+        // Navbar scroll effect
+        window.addEventListener('scroll', function() {
+            const navbar = document.querySelector('.luxury-navbar');
+            if (window.scrollY > 50) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+        });
+    </script>
+    
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

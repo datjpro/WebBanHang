@@ -1,0 +1,90 @@
+@model Product
+
+@{
+    ViewData["Title"] = "Chi tiết sản phẩm";
+}
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-6">
+            @if (!string.IsNullOrEmpty(Model.ImageUrl))
+            {
+                <img src="@Model.ImageUrl" class="img-fluid rounded" alt="@Model.Name">
+            }
+            else
+            {
+                <div class="bg-light d-flex align-items-center justify-content-center rounded" style="height: 400px;">
+                    <span class="text-muted">Không có hình ảnh</span>
+                </div>
+            }
+            
+            @if (Model.Images != null && Model.Images.Any())
+            {
+                <div class="row mt-3">
+                    @foreach (var image in Model.Images)
+                    {
+                        <div class="col-3">
+                            <img src="@image.Url" class="img-fluid rounded" alt="@Model.Name">
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+        
+        <div class="col-md-6">
+            <h1>@Model.Name</h1>
+            <hr>
+            
+            <div class="mb-3">
+                <span class="badge bg-secondary">@Model.Category?.Name</span>
+            </div>
+            
+            <h3 class="text-danger mb-3">
+                @Model.Price.ToString("C", new System.Globalization.CultureInfo("vi-VN"))
+            </h3>
+            
+            <div class="mb-4">
+                <h5>Mô tả sản phẩm:</h5>
+                <p>@Model.Description</p>
+            </div>
+            
+            <div class="d-grid gap-2 d-md-flex">
+                <button class="btn btn-primary btn-lg me-md-2" type="button">
+                    <i class="fas fa-shopping-cart"></i> Thêm vào giỏ hàng
+                </button>
+                <button class="btn btn-outline-danger btn-lg" type="button">
+                    <i class="fas fa-heart"></i> Yêu thích
+                </button>
+            </div>
+            
+            <hr class="my-4">
+            
+            <div class="row">
+                <div class="col-6">
+                    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning w-100">
+                        <i class="fas fa-edit"></i> Chỉnh sửa
+                    </a>
+                </div>
+                <div class="col-6">
+                    <a asp-action="Index" class="btn btn-secondary w-100">
+                        <i class="fas fa-arrow-left"></i> Quay lại
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Related Products -->
+    <div class="row mt-5">
+        <div class="col-12">
+            <h4>Sản phẩm cùng danh mục</h4>
+            <hr>
+            <div class="row">
+                <!-- Placeholder for related products -->
+                <div class="col-12">
+                    <p class="text-muted">Tính năng sản phẩm liên quan sẽ được thêm sau.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
