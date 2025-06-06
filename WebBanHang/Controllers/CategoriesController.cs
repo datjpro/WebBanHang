@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
+using WebBanHang.Models;
 
 namespace WebBanHang.Controllers
 {
@@ -35,17 +37,15 @@ namespace WebBanHang.Controllers
             }
 
             return View(category);
-        }
-
-        // GET: Categories/Create
+        }        // GET: Categories/Create
+        [Authorize(Policy = "AdminOnly")]
         public IActionResult Create()
         {
             return View();
-        }
-
-        // POST: Categories/Create
+        }        // POST: Categories/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Policy = "AdminOnly")]
         public async Task<IActionResult> Create([Bind("Id,Name")] Category category)
         {
             if (ModelState.IsValid)
@@ -55,9 +55,8 @@ namespace WebBanHang.Controllers
                 return RedirectToAction(nameof(Index));
             }
             return View(category);
-        }
-
-        // GET: Categories/Edit/5
+        }        // GET: Categories/Edit/5
+        [Authorize(Policy = "AdminOnly")]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -71,11 +70,10 @@ namespace WebBanHang.Controllers
                 return NotFound();
             }
             return View(category);
-        }
-
-        // POST: Categories/Edit/5
+        }        // POST: Categories/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Policy = "AdminOnly")]
         public async Task<IActionResult> Edit(int id, [Bind("Id,Name")] Category category)
         {
             if (id != category.Id)
@@ -104,9 +102,8 @@ namespace WebBanHang.Controllers
                 return RedirectToAction(nameof(Index));
             }
             return View(category);
-        }
-
-        // GET: Categories/Delete/5
+        }        // GET: Categories/Delete/5
+        [Authorize(Policy = "AdminOnly")]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -122,11 +119,10 @@ namespace WebBanHang.Controllers
             }
 
             return View(category);
-        }
-
-        // POST: Categories/Delete/5
+        }        // POST: Categories/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize(Policy = "AdminOnly")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var category = await _context.Categories.FindAsync(id);

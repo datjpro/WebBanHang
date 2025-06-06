@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
+using Microsoft.AspNetCore.Authorization;
+using WebBanHang.Models;
 
 namespace WebBanHang.Controllers
 {
@@ -43,8 +45,8 @@ namespace WebBanHang.Controllers
                 return NotFound();
             }
 
-            return View(product);
-        }        // GET: Products/Create
+            return View(product);        }        // GET: Products/Create
+        [Authorize(Policy = "AdminOrCompany")]
         public async Task<IActionResult> Create()
         {
             ViewBag.Categories = await _categoryRepository.GetAllAsync();
@@ -52,6 +54,7 @@ namespace WebBanHang.Controllers
         }        // POST: Products/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Policy = "AdminOrCompany")]
         public async Task<IActionResult> Create([Bind("Id,Name,Price,Description,ImageUrl,CategoryId")] Product product, List<string> imageUrls)
         {
             // Debug: Log các giá trị nhận được
@@ -89,8 +92,8 @@ namespace WebBanHang.Controllers
                 return RedirectToAction(nameof(Index));
             }
             ViewBag.Categories = await _categoryRepository.GetAllAsync();
-            return View(product);
-        }// GET: Products/Edit/5
+            return View(product);        }// GET: Products/Edit/5
+        [Authorize(Policy = "AdminOrCompany")]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -104,10 +107,10 @@ namespace WebBanHang.Controllers
                 return NotFound();
             }
             ViewBag.Categories = await _categoryRepository.GetAllAsync();
-            return View(product);
-        }        // POST: Products/Edit/5
+            return View(product);        }        // POST: Products/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Policy = "AdminOrCompany")]
         public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Price,Description,ImageUrl,CategoryId")] Product product, List<string> imageUrls)
         {
             if (id != product.Id)
@@ -151,8 +154,8 @@ namespace WebBanHang.Controllers
                 return RedirectToAction(nameof(Index));
             }
             ViewBag.Categories = await _categoryRepository.GetAllAsync();
-            return View(product);
-        }        // GET: Products/Delete/5
+            return View(product);        }        // GET: Products/Delete/5
+        [Authorize(Policy = "AdminOrCompany")]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -166,10 +169,10 @@ namespace WebBanHang.Controllers
                 return NotFound();
             }
 
-            return View(product);
-        }        // POST: Products/Delete/5
+            return View(product);        }        // POST: Products/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize(Policy = "AdminOrCompany")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             // Xóa tất cả ảnh liên quan trước

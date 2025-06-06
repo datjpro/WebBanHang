@@ -17,6 +17,14 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options => {
 
 builder.Services.AddRazorPages();
 
+// Thêm Authorization policies
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("AdminOnly", policy => policy.RequireRole(SD.Role_Admin));
+    options.AddPolicy("CompanyOnly", policy => policy.RequireRole(SD.Role_Company));
+    options.AddPolicy("AdminOrCompany", policy => policy.RequireRole(SD.Role_Admin, SD.Role_Company));
+    options.AddPolicy("AdminOrEmployee", policy => policy.RequireRole(SD.Role_Admin, SD.Role_Employee));
+});
 
 // Đăng ký Repository
 builder.Services.AddScoped<IProductRepository, EFProductRepository>();
@@ -40,6 +48,12 @@ app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapRazorPages();
+
+// Admin area route
+app.MapControllerRoute(
+    name: "admin",
+    pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}");
+
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");

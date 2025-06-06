@@ -2,79 +2,103 @@
 @model LoginModel
 
 @{
-    ViewData["Title"] = "Log in";
+    ViewData["Title"] = "Đăng Nhập";
+    Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h1>@ViewData["Title"]</h1>
-<div class="row">
-    <div class="col-md-4">
-        <section>
-            <form id="account" method="post">
-                <h2>Use a local account to log in.</h2>
-                <hr />
-                <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
-                <div class="form-floating mb-3">
-                    <input asp-for="Input.Email" class="form-control" autocomplete="username" aria-required="true" placeholder="name@example.com" />
-                    <label asp-for="Input.Email" class="form-label">Email</label>
-                    <span asp-validation-for="Input.Email" class="text-danger"></span>
-                </div>
-                <div class="form-floating mb-3">
-                    <input asp-for="Input.Password" class="form-control" autocomplete="current-password" aria-required="true" placeholder="password" />
-                    <label asp-for="Input.Password" class="form-label">Password</label>
-                    <span asp-validation-for="Input.Password" class="text-danger"></span>
-                </div>
-                <div class="checkbox mb-3">
-                    <label asp-for="Input.RememberMe" class="form-label">
-                        <input class="form-check-input" asp-for="Input.RememberMe" />
-                        @Html.DisplayNameFor(m => m.Input.RememberMe)
-                    </label>
-                </div>
-                <div>
-                    <button id="login-submit" type="submit" class="w-100 btn btn-lg btn-primary">Log in</button>
-                </div>
-                <div>
-                    <p>
-                        <a id="forgot-password" asp-page="./ForgotPassword">Forgot your password?</a>
-                    </p>
-                    <p>
-                        <a asp-page="./Register" asp-route-returnUrl="@Model.ReturnUrl">Register as a new user</a>
-                    </p>
-                    <p>
-                        <a id="resend-confirmation" asp-page="./ResendEmailConfirmation">Resend email confirmation</a>
-                    </p>
-                </div>
-            </form>
-        </section>
-    </div>
-    <div class="col-md-6 col-md-offset-2">
-        <section>
-            <h3>Use another service to log in.</h3>
-            <hr />
-            @{
-                if ((Model.ExternalLogins?.Count ?? 0) == 0)
-                {
-                    <div>
-                        <p>
-                            There are no external authentication services configured. See this <a href="https://go.microsoft.com/fwlink/?LinkID=532715">article
-                            about setting up this ASP.NET application to support logging in via external services</a>.
-                        </p>
+<div class="auth-container">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-5 col-md-6">
+                <div class="auth-card" data-aos="fade-up" data-aos-duration="800">
+                    <div class="auth-header">
+                        <a href="@Url.Action("Index", "Home")" class="auth-logo">
+                            <div class="auth-logo-icon">
+                                <i class="fas fa-crown"></i>
+                            </div>
+                            <span class="auth-logo-text">DATJ MARKET</span>
+                        </a>
+                        <h1 class="auth-title">Chào mừng trở lại</h1>
+                        <p class="auth-subtitle">Đăng nhập để tiếp tục mua sắm</p>
                     </div>
-                }
-                else
-                {
-                    <form id="external-account" asp-page="./ExternalLogin" asp-route-returnUrl="@Model.ReturnUrl" method="post" class="form-horizontal">
-                        <div>
-                            <p>
-                                @foreach (var provider in Model.ExternalLogins!)
-                                {
-                                    <button type="submit" class="btn btn-primary" name="provider" value="@provider.Name" title="Log in using your @provider.DisplayName account">@provider.DisplayName</button>
-                                }
-                            </p>
+
+                    <div class="auth-form">
+                        <form id="account" method="post">
+                            <div asp-validation-summary="ModelOnly" class="auth-error-message" role="alert"></div>
+                            
+                            <div class="auth-form-floating">
+                                <input asp-for="Input.Email" class="auth-form-control" autocomplete="username" 
+                                       aria-required="true" placeholder="Nhập email của bạn" />
+                                <i class="fas fa-envelope auth-form-icon"></i>
+                                <label asp-for="Input.Email" class="auth-form-label">Email</label>
+                                <span asp-validation-for="Input.Email" class="auth-validation-error"></span>
+                            </div>
+
+                            <div class="auth-form-floating">
+                                <input asp-for="Input.Password" class="auth-form-control" autocomplete="current-password" 
+                                       aria-required="true" placeholder="Nhập mật khẩu" type="password" />
+                                <i class="fas fa-lock auth-form-icon"></i>
+                                <label asp-for="Input.Password" class="auth-form-label">Mật khẩu</label>
+                                <span asp-validation-for="Input.Password" class="auth-validation-error"></span>
+                            </div>
+
+                            <div class="auth-checkbox-wrapper">
+                                <input class="auth-checkbox" asp-for="Input.RememberMe" type="checkbox" />
+                                <label asp-for="Input.RememberMe" class="auth-checkbox-label">
+                                    @Html.DisplayNameFor(m => m.Input.RememberMe)
+                                </label>
+                            </div>
+
+                            <button id="login-submit" type="submit" class="auth-submit-btn">
+                                <i class="fas fa-sign-in-alt me-2"></i>
+                                Đăng Nhập
+                            </button>
+
+                            @if ((Model.ExternalLogins?.Count ?? 0) > 0)
+                            {
+                                <div class="auth-divider">
+                                    <span class="auth-divider-text">Hoặc đăng nhập với</span>
+                                </div>
+
+                                <div class="auth-external-providers">
+                                    <form id="external-account" asp-page="./ExternalLogin" asp-route-returnUrl="@Model.ReturnUrl" method="post">
+                                        @foreach (var provider in Model.ExternalLogins!)
+                                        {
+                                            <button type="submit" class="auth-external-btn" name="provider" value="@provider.Name" 
+                                                    title="Đăng nhập bằng @provider.DisplayName">
+                                                <i class="fab fa-@provider.Name.ToLower()"></i>
+                                                @provider.DisplayName
+                                            </button>
+                                        }
+                                    </form>
+                                </div>
+                            }
+                        </form>
+
+                        <div class="auth-links">
+                            <div class="mb-3">
+                                <a class="auth-link" id="forgot-password" asp-page="./ForgotPassword">
+                                    <i class="fas fa-key me-1"></i>
+                                    Quên mật khẩu?
+                                </a>
+                            </div>
+                            <div class="mb-3">
+                                <a class="auth-link" asp-page="./Register" asp-route-returnUrl="@Model.ReturnUrl">
+                                    <i class="fas fa-user-plus me-1"></i>
+                                    Đăng ký tài khoản mới
+                                </a>
+                            </div>
+                            <div>
+                                <a class="auth-link" id="resend-confirmation" asp-page="./ResendEmailConfirmation">
+                                    <i class="fas fa-envelope-circle-check me-1"></i>
+                                    Gửi lại email xác nhận
+                                </a>
+                            </div>
                         </div>
-                    </form>
-                }
-            }
-        </section>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 

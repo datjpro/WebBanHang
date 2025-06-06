@@ -1,82 +1,135 @@
 ﻿@page
 @model RegisterModel
 @{
-    ViewData["Title"] = "Register";
+    ViewData["Title"] = "Đăng Ký";
+    Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h1>@ViewData["Title"]</h1>
-
-<div class="row">
-    <div class="col-md-4">
-        <form id="registerForm" asp-route-returnUrl="@Model.ReturnUrl" method="post">
-            <h2>Create a new account.</h2>
-            <hr />            <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
-            <div class="form-floating mb-3">
-                <input asp-for="Input.FirstName" class="form-control" autocomplete="given-name" aria-required="true" placeholder="First Name" />
-                <label asp-for="Input.FirstName">First Name</label>
-                <span asp-validation-for="Input.FirstName" class="text-danger"></span>
-            </div>
-            <div class="form-floating mb-3">
-                <input asp-for="Input.LastName" class="form-control" autocomplete="family-name" aria-required="true" placeholder="Last Name" />
-                <label asp-for="Input.LastName">Last Name</label>
-                <span asp-validation-for="Input.LastName" class="text-danger"></span>
-            </div>            <div class="form-floating mb-3">
-                <input asp-for="Input.Address" class="form-control" autocomplete="address-line1" aria-required="true" placeholder="Address" />
-                <label asp-for="Input.Address">Address</label>
-                <span asp-validation-for="Input.Address" class="text-danger"></span>
-            </div>
-            <div class="form-floating mb-3">
-                <input asp-for="Input.PhoneNumber" class="form-control" autocomplete="tel" aria-required="true" placeholder="Phone Number" />
-                <label asp-for="Input.PhoneNumber">Phone Number</label>
-                <span asp-validation-for="Input.PhoneNumber" class="text-danger"></span>
-            </div>
-            <div class="form-floating mb-3">
-                <input asp-for="Input.Email" class="form-control" autocomplete="username" aria-required="true" placeholder="name@example.com" />
-                <label asp-for="Input.Email">Email</label>
-                <span asp-validation-for="Input.Email" class="text-danger"></span>
-            </div>
-            <div class="form-floating mb-3">
-                <input asp-for="Input.Password" class="form-control" autocomplete="new-password" aria-required="true" placeholder="password" />
-                <label asp-for="Input.Password">Password</label>
-                <span asp-validation-for="Input.Password" class="text-danger"></span>
-            </div>
-            <div class="form-floating mb-3">
-                <input asp-for="Input.ConfirmPassword" class="form-control" autocomplete="new-password" aria-required="true" placeholder="password" />
-                <label asp-for="Input.ConfirmPassword">Confirm Password</label>
-                <span asp-validation-for="Input.ConfirmPassword" class="text-danger"></span>
-            </div>
-            <button id="registerSubmit" type="submit" class="w-100 btn btn-lg btn-primary">Register</button>
-        </form>
-    </div>
-    <div class="col-md-6 col-md-offset-2">
-        <section>
-            <h3>Use another service to register.</h3>
-            <hr />
-            @{
-                if ((Model.ExternalLogins?.Count ?? 0) == 0)
-                {
-                    <div>
-                        <p>
-                            There are no external authentication services configured. See this <a href="https://go.microsoft.com/fwlink/?LinkID=532715">article
-                            about setting up this ASP.NET application to support logging in via external services</a>.
-                        </p>
+<div class="auth-container">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-5 col-md-6">
+                <div class="auth-card" data-aos="fade-up" data-aos-duration="800">
+                    <div class="auth-header">
+                        <a href="@Url.Action("Index", "Home")" class="auth-logo">
+                            <div class="auth-logo-icon">
+                                <i class="fas fa-crown"></i>
+                            </div>
+                            <span class="auth-logo-text">DATJ MARKET</span>
+                        </a>
+                        <h1 class="auth-title">Tạo tài khoản mới</h1>
+                        <p class="auth-subtitle">Gia nhập cộng đồng mua sắm cao cấp</p>
                     </div>
-                }
-                else
-                {
-                    <form id="external-account" asp-page="./ExternalLogin" asp-route-returnUrl="@Model.ReturnUrl" method="post" class="form-horizontal">
-                        <div>
-                            <p>
-                                @foreach (var provider in Model.ExternalLogins!)
-                                {
-                                    <button type="submit" class="btn btn-primary" name="provider" value="@provider.Name" title="Log in using your @provider.DisplayName account">@provider.DisplayName</button>
-                                }
-                            </p>
+
+                    <div class="auth-form">
+                        <form id="registerForm" asp-route-returnUrl="@Model.ReturnUrl" method="post">
+                            <div asp-validation-summary="ModelOnly" class="auth-error-message" role="alert"></div>
+                            
+                            <div class="row">
+                                <div class="col-6">
+                                    <div class="auth-form-floating">
+                                        <input asp-for="Input.FirstName" class="auth-form-control" autocomplete="given-name" 
+                                               aria-required="true" placeholder="Tên của bạn" />
+                                        <i class="fas fa-user auth-form-icon"></i>
+                                        <label asp-for="Input.FirstName" class="auth-form-label">Tên</label>
+                                        <span asp-validation-for="Input.FirstName" class="auth-validation-error"></span>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="auth-form-floating">
+                                        <input asp-for="Input.LastName" class="auth-form-control" autocomplete="family-name" 
+                                               aria-required="true" placeholder="Họ của bạn" />
+                                        <i class="fas fa-user auth-form-icon"></i>
+                                        <label asp-for="Input.LastName" class="auth-form-label">Họ</label>
+                                        <span asp-validation-for="Input.LastName" class="auth-validation-error"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="auth-form-floating">
+                                <input asp-for="Input.Email" class="auth-form-control" autocomplete="username" 
+                                       aria-required="true" placeholder="Nhập email của bạn" />
+                                <i class="fas fa-envelope auth-form-icon"></i>
+                                <label asp-for="Input.Email" class="auth-form-label">Email</label>
+                                <span asp-validation-for="Input.Email" class="auth-validation-error"></span>
+                            </div>
+
+                            <div class="auth-form-floating">
+                                <input asp-for="Input.PhoneNumber" class="auth-form-control" autocomplete="tel" 
+                                       aria-required="true" placeholder="Số điện thoại" />
+                                <i class="fas fa-phone auth-form-icon"></i>
+                                <label asp-for="Input.PhoneNumber" class="auth-form-label">Số điện thoại</label>
+                                <span asp-validation-for="Input.PhoneNumber" class="auth-validation-error"></span>
+                            </div>                            <div class="auth-form-floating">
+                                <input asp-for="Input.Address" class="auth-form-control" autocomplete="address-line1" 
+                                       aria-required="true" placeholder="Địa chỉ của bạn" />
+                                <i class="fas fa-map-marker-alt auth-form-icon"></i>
+                                <label asp-for="Input.Address" class="auth-form-label">Địa chỉ</label>
+                                <span asp-validation-for="Input.Address" class="auth-validation-error"></span>
+                            </div>                            <div class="auth-form-floating">
+                                <select asp-for="Input.Role" asp-items="@Model.Input.RoleList" class="auth-form-control">
+                                    <option disabled>-- Chọn vai trò --</option>
+                                </select>
+                                <i class="fas fa-users-cog auth-form-icon"></i>
+                                <label asp-for="Input.Role" class="auth-form-label">Vai trò</label>
+                                <span asp-validation-for="Input.Role" class="auth-validation-error"></span>
+                            </div>
+
+                            <div class="auth-form-floating">
+                                <input asp-for="Input.Password" class="auth-form-control" autocomplete="new-password" 
+                                       aria-required="true" placeholder="Tạo mật khẩu" type="password" />
+                                <i class="fas fa-lock auth-form-icon"></i>
+                                <label asp-for="Input.Password" class="auth-form-label">Mật khẩu</label>
+                                <span asp-validation-for="Input.Password" class="auth-validation-error"></span>
+                            </div>
+
+                            <div class="auth-form-floating">
+                                <input asp-for="Input.ConfirmPassword" class="auth-form-control" autocomplete="new-password" 
+                                       aria-required="true" placeholder="Xác nhận mật khẩu" type="password" />
+                                <i class="fas fa-lock auth-form-icon"></i>
+                                <label asp-for="Input.ConfirmPassword" class="auth-form-label">Xác nhận mật khẩu</label>
+                                <span asp-validation-for="Input.ConfirmPassword" class="auth-validation-error"></span>
+                            </div>
+
+                            <button id="registerSubmit" type="submit" class="auth-submit-btn">
+                                <i class="fas fa-user-plus me-2"></i>
+                                Tạo tài khoản
+                            </button>
+
+                            @if ((Model.ExternalLogins?.Count ?? 0) > 0)
+                            {
+                                <div class="auth-divider">
+                                    <span class="auth-divider-text">Hoặc đăng ký với</span>
+                                </div>
+
+                                <div class="auth-external-providers">
+                                    <form id="external-account" asp-page="./ExternalLogin" asp-route-returnUrl="@Model.ReturnUrl" method="post">
+                                        @foreach (var provider in Model.ExternalLogins!)
+                                        {
+                                            <button type="submit" class="auth-external-btn" name="provider" value="@provider.Name" 
+                                                    title="Đăng ký bằng @provider.DisplayName">
+                                                <i class="fab fa-@provider.Name.ToLower()"></i>
+                                                @provider.DisplayName
+                                            </button>
+                                        }
+                                    </form>
+                                </div>
+                            }
+                        </form>
+
+                        <div class="auth-links">
+                            <div>
+                                Đã có tài khoản? 
+                                <a class="auth-link" asp-page="./Login" asp-route-returnUrl="@Model.ReturnUrl">
+                                    <i class="fas fa-sign-in-alt me-1"></i>
+                                    Đăng nhập ngay
+                                </a>
+                            </div>
                         </div>
-                    </form>
-                }
-            }
-        </section>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
