@@ -30,6 +30,15 @@ builder.Services.AddAuthorization(options =>
 builder.Services.AddScoped<IProductRepository, EFProductRepository>();
 builder.Services.AddScoped<ICategoryRepository, EFCategoryRepository>();
 builder.Services.AddScoped<IProductImageRepository, EFProductImageRepository>();
+builder.Services.AddScoped<ICartRepository, EFCartRepository>();
+
+builder.Services.AddDistributedMemoryCache();
+builder.Services.AddSession(options =>
+{
+ options.IdleTimeout = TimeSpan.FromMinutes(30);
+ options.Cookie.HttpOnly = true;
+ options.Cookie.IsEssential = true;
+});
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
@@ -44,6 +53,7 @@ if (!app.Environment.IsDevelopment())
 app.UseStaticFiles();
 
 app.UseRouting();
+app.UseSession();
 
 app.UseAuthentication();
 app.UseAuthorization();

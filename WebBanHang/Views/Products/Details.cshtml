@@ -174,13 +174,17 @@
                                     </button>
                                 </div>
                             </div>
-                            
-                            <div class="action-buttons">
-                                <button class="btn luxury-btn primary-btn w-100 mb-3" type="button">
-                                    <i class="fas fa-shopping-cart me-2"></i>
-                                    <span>Thêm vào giỏ hàng</span>
-                                    <div class="btn-shine"></div>
-                                </button>
+                              <div class="action-buttons">
+                                <form asp-controller="ShoppingCart" asp-action="AddToCart" method="post" class="add-to-cart-form">
+                                    <input type="hidden" name="productId" value="@Model.Id" />
+                                    <input type="hidden" name="quantity" id="selected-quantity" value="1" />
+                                    
+                                    <button type="submit" class="btn luxury-btn primary-btn w-100 mb-3">
+                                        <i class="fas fa-shopping-cart me-2"></i>
+                                        <span>Thêm vào giỏ hàng</span>
+                                        <div class="btn-shine"></div>
+                                    </button>
+                                </form>
                                 
                                 <div class="row g-2">
                                     <div class="col-6">
@@ -902,6 +906,63 @@
             padding: 40px 20px;
         }
     }
+    
+    /* Toast Notifications */
+    .toast-notification {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: linear-gradient(135deg, #28a745, #20c997);
+        color: white;
+        padding: 15px 20px;
+        border-radius: 10px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        z-index: 10000;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        max-width: 400px;
+        animation: slideInRight 0.3s ease-out;
+    }
+    
+    .toast-icon {
+        font-size: 18px;
+    }
+    
+    .toast-close {
+        background: none;
+        border: none;
+        color: white;
+        cursor: pointer;
+        padding: 5px;
+        margin-left: auto;
+    }
+    
+    .toast-close:hover {
+        opacity: 0.7;
+    }
+    
+    @@keyframes slideInRight {
+        from {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+    
+    @@keyframes slideOutRight {
+        from {
+            transform: translateX(0);
+            opacity: 1;
+        }
+        to {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+    }
 </style>
 
 <script>
@@ -911,12 +972,12 @@
         const minusBtn = document.querySelector('.minus-btn');
         const plusBtn = document.querySelector('.plus-btn');
         const quantityInput = document.querySelector('.quantity-input');
-        
-        if (minusBtn && plusBtn && quantityInput) {
+          if (minusBtn && plusBtn && quantityInput) {
             minusBtn.addEventListener('click', function() {
                 let value = parseInt(quantityInput.value);
                 if (value > 1) {
                     quantityInput.value = value - 1;
+                    document.getElementById('selected-quantity').value = value - 1;
                 }
             });
             
@@ -924,13 +985,80 @@
                 let value = parseInt(quantityInput.value);
                 if (value < 99) {
                     quantityInput.value = value + 1;
+                    document.getElementById('selected-quantity').value = value + 1;
                 }
             });
+            
+            quantityInput.addEventListener('change', function() {
+                document.getElementById('selected-quantity').value = this.value;
+            });
         }
-        
-        // Add to cart animation
+          // Add to cart form submission
+        const addToCartForm = document.querySelector('form');
+        if (addToCartForm) {
+            addToCartForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const formData = new FormData(this);
+                const submitBtn = this.querySelector('.primary-btn');
+                
+                // Change button state
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i><span>Đang thêm...</span>';
+                submitBtn.disabled = true;
+                
+                // AJAX request
+                fetch('/ShoppingCart/AddToCart', {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Success state
+                        submitBtn.innerHTML = '<i class="fas fa-check me-2"></i><span>Đã thêm vào giỏ</span>';
+                        submitBtn.style.background = 'linear-gradient(135deg, #28a745, #20c997)';
+                        
+                        // Refresh cart header if available
+                        if (typeof window.refreshCartHeader === 'function') {
+                            window.refreshCartHeader();
+                        }
+                        
+                        // Show toast notification
+                        showToast('success', data.message);
+                        
+                        // Reset button after 2 seconds
+                        setTimeout(() => {
+                            submitBtn.innerHTML = '<i class="fas fa-shopping-cart me-2"></i><span>Thêm vào giỏ hàng</span>';
+                            submitBtn.style.background = 'linear-gradient(135deg, #c9a96e, #e2d3b4)';
+                            submitBtn.disabled = false;
+                        }, 2000);
+                    } else {
+                        throw new Error(data.message || 'Có lỗi xảy ra');
+                    }
+                })
+                .catch(error => {
+                    // Error state
+                    submitBtn.innerHTML = '<i class="fas fa-times me-2"></i><span>Thử lại</span>';
+                    submitBtn.style.background = 'linear-gradient(135deg, #dc3545, #c82333)';
+                    
+                    showToast('error', error.message || 'Có lỗi xảy ra khi thêm vào giỏ hàng');
+                    
+                    // Reset button after 2 seconds
+                    setTimeout(() => {
+                        submitBtn.innerHTML = '<i class="fas fa-shopping-cart me-2"></i><span>Thêm vào giỏ hàng</span>';
+                        submitBtn.style.background = 'linear-gradient(135deg, #c9a96e, #e2d3b4)';
+                        submitBtn.disabled = false;
+                    }, 2000);
+                });
+            });
+        }
+
+        // Add to cart animation (fallback for non-AJAX)
         const addToCartBtn = document.querySelector('.primary-btn');
-        if (addToCartBtn) {
+        if (addToCartBtn && !addToCartForm) {
             addToCartBtn.addEventListener('click', function() {
                 this.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i><span>Đang thêm...</span>';
                 
@@ -1017,4 +1145,91 @@
             }, 200);
         }
     }
+    
+    // Toast notification function
+    function showToast(type, message) {
+        // Remove existing toasts
+        const existingToasts = document.querySelectorAll('.toast-notification');
+        existingToasts.forEach(toast => toast.remove());
+        
+        const toast = document.createElement('div');
+        toast.className = `toast-notification toast-${type}`;
+        toast.innerHTML = `
+            <div class="toast-icon">
+                <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i>
+            </div>
+            <div class="toast-message">${message}</div>
+            <button class="toast-close" onclick="this.parentElement.remove()">
+                <i class="fas fa-times"></i>
+            </button>
+        `;
+        
+        // Toast styles
+        toast.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: ${type === 'success' ? 'linear-gradient(135deg, #28a745, #20c997)' : 'linear-gradient(135deg, #dc3545, #c82333)'};
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            max-width: 400px;
+            animation: slideInRight 0.3s ease-out;
+        `;
+        
+        document.body.appendChild(toast);
+        
+        // Auto remove after 5 seconds
+        setTimeout(() => {
+            if (toast.parentElement) {
+                toast.style.animation = 'slideOutRight 0.3s ease-in';
+                setTimeout(() => toast.remove(), 300);
+            }
+        }, 5000);
+    }
+    
+    // Add keyframes for toast animations
+    const style = document.createElement('style');
+    style.textContent = `
+        @@keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        @@keyframes slideOutRight {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+        }
+        
+        .toast-close {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            padding: 5px;
+            margin-left: auto;
+        }
+        
+        .toast-close:hover {
+            opacity: 0.7;
+        }
+    `;
+    document.head.appendChild(style);
 </script>

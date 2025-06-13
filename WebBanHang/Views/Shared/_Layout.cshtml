@@ -77,8 +77,7 @@
                             <div class="nav-underline"></div>
                         </a>
                     </li>
-                </ul>
-                  <div class="navbar-actions">
+                </ul>                  <div class="navbar-actions">
                     <button class="action-btn search-btn" data-bs-toggle="modal" data-bs-target="#searchModal">
                         <i class="fas fa-search"></i>
                     </button>
@@ -86,10 +85,7 @@
                         <i class="fas fa-heart"></i>
                         <span class="action-badge">2</span>
                     </button>
-                    <button class="action-btn cart-btn">
-                        <i class="fas fa-shopping-bag"></i>
-                        <span class="action-badge">0</span>
-                    </button>
+                    @await Component.InvokeAsync("CartHeader")
                     <partial name="_LoginPartial" />
                 </div>
             </div>

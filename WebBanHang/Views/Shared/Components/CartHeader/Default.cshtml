@@ -1,0 +1,263 @@
+@{
+    var count = ViewBag.Count ?? 0;
+    var total = ViewBag.Total ?? 0;
+    var items = ViewBag.Items ?? new object[0];
+}
+
+<div class="dropdown" id="cart-dropdown">
+    <a class="nav-link dropdown-toggle cart-icon" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+        <i class="fas fa-shopping-cart"></i>
+        <span class="cart-badge" id="cart-count" style="@(count > 0 ? "display: inline-block;" : "display: none;")">@count</span>
+    </a>
+    <div class="dropdown-menu dropdown-menu-end cart-dropdown" aria-labelledby="cartDropdown">
+        <div class="cart-header">
+            <h6 class="dropdown-header">Giỏ hàng của bạn</h6>
+        </div>
+        <div class="cart-items" id="cart-items">
+            @if (count > 0)
+            {
+                @foreach (dynamic item in (IEnumerable<dynamic>)items)
+                {
+                    <div class="cart-item">
+                        <img src="@(item.ImageUrl ?? "/images/no-image.jpg")" alt="@item.Name" class="cart-item-image" 
+                             onerror="this.src='/images/no-image.jpg'">
+                        <div class="cart-item-details">
+                            <div class="cart-item-name" title="@item.Name">@(item.Name.Length > 25 ? item.Name.Substring(0, 25) + "..." : item.Name)</div>
+                            <div class="cart-item-price">@item.Price.ToString("C0", new System.Globalization.CultureInfo("vi-VN"))</div>
+                            <div class="cart-item-quantity">SL: @item.Quantity</div>
+                        </div>
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="text-center p-3" id="empty-cart">
+                    <i class="fas fa-shopping-cart fa-2x text-muted"></i>
+                    <p class="text-muted mt-2">Giỏ hàng trống</p>
+                </div>
+            }
+        </div>
+        <div class="cart-footer" id="cart-footer" style="@(count > 0 ? "display: block;" : "display: none;")">
+            <div class="cart-total">
+                <strong>Tổng cộng: <span id="cart-total">@total.ToString("C0", new System.Globalization.CultureInfo("vi-VN"))</span></strong>
+            </div>
+            <div class="cart-actions">
+                <a href="/ShoppingCart" class="btn btn-primary btn-sm w-100">Xem giỏ hàng</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.cart-icon {
+    position: relative;
+    color: #333;
+    font-size: 1.2rem;
+}
+
+.cart-badge {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background: #dc3545;
+    color: white;
+    border-radius: 50%;
+    padding: 2px 6px;
+    font-size: 0.75rem;
+    min-width: 18px;
+    text-align: center;
+    line-height: 1;
+    animation: bounceIn 0.3s ease-out;
+}
+
+.cart-badge.hidden {
+    display: none !important;
+}
+
+@@keyframes bounceIn {
+    0% { transform: scale(0); }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(1); }
+}
+
+.cart-dropdown {
+    width: 320px;
+    border: none;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.cart-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 15px;
+    margin: 0;
+}
+
+.cart-header h6 {
+    margin: 0;
+    font-weight: 600;
+    color: white;
+}
+
+.cart-items {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.cart-item {
+    display: flex;
+    align-items: center;
+    padding: 12px 15px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.cart-item:last-child {
+    border-bottom: none;
+}
+
+.cart-item-image {
+    width: 50px;
+    height: 50px;
+    object-fit: cover;
+    border-radius: 8px;
+    margin-right: 12px;
+}
+
+.cart-item-details {
+    flex: 1;
+}
+
+.cart-item-name {
+    font-size: 0.9rem;
+    font-weight: 500;
+    margin-bottom: 2px;
+    color: #333;
+}
+
+.cart-item-price {
+    font-size: 0.8rem;
+    color: #666;
+}
+
+.cart-item-quantity {
+    font-size: 0.8rem;
+    color: #999;
+}
+
+.cart-footer {
+    background: #f8f9fa;
+    padding: 15px;
+    border-top: 1px solid #e9ecef;
+}
+
+.cart-total {
+    text-align: center;
+    margin-bottom: 10px;
+    font-size: 1.1rem;
+}
+
+.cart-actions .btn {
+    border-radius: 8px;
+    font-weight: 500;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+}
+
+.cart-actions .btn:hover {
+    background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+    transform: translateY(-1px);
+}
+
+@@media (max-width: 768px) {
+    .cart-dropdown {
+        width: 280px;
+    }
+}
+</style>
+
+<script>
+$(document).ready(function() {
+    // Load fresh cart data on page load
+    setTimeout(loadCartHeader, 100);
+    
+    // Refresh cart header every 30 seconds for passive updates
+    setInterval(loadCartHeader, 30000);
+    
+    // Also refresh when page becomes visible again
+    document.addEventListener('visibilitychange', function() {
+        if (!document.hidden) {
+            loadCartHeader();
+        }
+    });
+});
+
+function loadCartHeader() {
+    $.get('/ShoppingCart/GetCartHeaderData', function(data) {
+        updateCartHeader(data);
+    }).fail(function() {
+        console.log('Failed to load cart data');
+    });
+}
+
+function updateCartHeader(data) {
+    const cartCount = data.count || 0;
+    const cartTotal = data.total || 0;
+    const cartItems = data.items || [];
+    
+    // Update cart count badge
+    $('#cart-count').text(cartCount);
+    
+    if (cartCount > 0) {
+        $('#cart-count').show().removeClass('hidden');
+        $('#cart-footer').show();
+        $('#cart-total').text(formatCurrency(cartTotal));
+        
+        // Build items HTML
+        var itemsHtml = '';
+        cartItems.forEach(function(item) {
+            itemsHtml += `
+                <div class="cart-item">
+                    <img src="${item.imageUrl || '/images/no-image.jpg'}" alt="${item.name}" class="cart-item-image" 
+                         onerror="this.src='/images/no-image.jpg'">
+                    <div class="cart-item-details">
+                        <div class="cart-item-name" title="${item.name}">${truncateText(item.name, 25)}</div>
+                        <div class="cart-item-price">${formatCurrency(item.price)}</div>
+                        <div class="cart-item-quantity">SL: ${item.quantity}</div>
+                    </div>
+                </div>
+            `;
+        });
+        
+        $('#cart-items').html(itemsHtml);
+    } else {
+        $('#cart-count').hide().addClass('hidden');
+        $('#cart-footer').hide();
+        $('#cart-total').text('0 ₫');
+        $('#cart-items').html(`
+            <div class="text-center p-3" id="empty-cart">
+                <i class="fas fa-shopping-cart fa-2x text-muted"></i>
+                <p class="text-muted mt-2">Giỏ hàng trống</p>
+            </div>
+        `);
+    }
+}
+
+function truncateText(text, maxLength) {
+    if (text.length <= maxLength) return text;
+    return text.substring(0, maxLength) + '...';
+}
+
+function formatCurrency(amount) {
+    return new Intl.NumberFormat('vi-VN', {
+        style: 'currency',
+        currency: 'VND'
+    }).format(amount);
+}
+
+// Global function to refresh cart header from other pages
+window.refreshCartHeader = function() {
+    loadCartHeader();
+};
+</script>
