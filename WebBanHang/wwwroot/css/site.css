@@ -22,6 +22,7 @@
   --transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   --border-radius: 12px;
   --border-radius-small: 8px;
+  --border-radius-medium: 10px;
   --border-radius-large: 20px;
 }
 
@@ -46,6 +47,36 @@ body.luxury-body {
   overflow-x: hidden;
   margin: 0;
   padding-top: 90px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Font rendering optimization */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: inherit;
+}
+
+/* Ensure consistent font rendering for all text elements */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+span,
+div,
+a,
+button,
+input,
+select,
+textarea {
+  font-family: var(--font-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 /* ===== LUXURY LOADING SCREEN ===== */
@@ -1167,273 +1198,6 @@ body.luxury-body {
 }
 
 /* Luxury Sidebar */
-.luxury-sidebar {
-  background: var(--white);
-  border-radius: var(--border-radius);
-  padding: 2rem;
-  box-shadow: var(--shadow-medium);
-  position: relative;
-  z-index: 1;
-  height: fit-content;
-  overflow: visible;
-  width: 100%;
-}
-
-.sidebar-section {
-  margin-bottom: 2.5rem;
-  position: relative;
-  overflow: visible;
-  width: 100%;
-}
-
-.sidebar-section:last-child {
-  margin-bottom: 0;
-}
-
-/* Search Form */
-.luxury-search-group {
-  position: relative;
-  display: flex;
-  background: var(--light-gray);
-  border-radius: var(--border-radius);
-  overflow: hidden;
-}
-
-.luxury-search-field {
-  flex: 1;
-  border: none;
-  background: transparent;
-  padding: 0.875rem 1rem;
-  color: var(--text-primary);
-  font-size: 0.95rem;
-  outline: none;
-}
-
-.luxury-search-field::placeholder {
-  color: var(--text-light);
-}
-
-.luxury-search-btn {
-  background: var(--gradient-gold);
-  border: none;
-  color: var(--white);
-  padding: 0.875rem 1.25rem;
-  cursor: pointer;
-  transition: var(--transition);
-}
-
-.luxury-search-btn:hover {
-  background: var(--primary-dark);
-}
-
-/* Categories List - Compact Sidebar Design */
-.luxury-categories-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.125rem;
-  position: relative;
-  z-index: 1;
-  width: 100%;
-  overflow: visible;
-  background: var(--white);
-  border-radius: var(--border-radius-medium);
-  box-shadow: 0 2px 10px var(--shadow-light);
-  padding: 0.75rem;
-}
-
-.category-item {
-  display: block;
-  text-decoration: none;
-  border-radius: var(--border-radius-small);
-  transition: var(--transition);
-  position: relative;
-  z-index: 2;
-  margin-bottom: 1px;
-  width: 100%;
-  clear: both;
-}
-
-.category-content {
-  display: flex;
-  align-items: center;
-  padding: 0.4rem 0.6rem;
-  color: var(--text-primary);
-  border-radius: var(--border-radius-small);
-  transition: var(--transition);
-  background: transparent;
-  border: 1px solid transparent;
-  position: relative;
-  min-height: 32px;
-  width: 100%;
-  box-sizing: border-box;
-  font-size: 0.8rem;
-  font-weight: 500;
-  letter-spacing: 0.025em;
-}
-
-.category-item:hover .category-content {
-  background: var(--light-gray);
-  color: var(--primary-gold);
-  transform: translateX(3px);
-  border-color: var(--primary-gold);
-  z-index: 5;
-  box-shadow: 0 2px 8px rgba(212, 175, 55, 0.15);
-}
-
-.category-item.active .category-content {
-  background: var(--gradient-gold);
-  color: var(--white);
-  border-color: var(--primary-gold);
-  z-index: 5;
-  box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
-}
-
-/* Sidebar Layout Improvements */
-.col-md-3 {
-  padding-right: 1rem;
-  padding-left: 0.5rem;
-}
-
-.col-md-9 {
-  padding-left: 1rem;
-  padding-right: 0.5rem;
-}
-
-/* Category List Header */
-.luxury-categories-list::before {
-  content: "Danh mục sản phẩm";
-  display: block;
-  font-weight: 700;
-  color: var(--text-primary);
-  font-size: 1rem;
-  margin-bottom: 0.75rem;
-  padding-bottom: 0.5rem;
-  border-bottom: 2px solid var(--primary-gold);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-/* Compact Category Item Styling */
-.category-content .category-icon {
-  font-size: 0.75rem;
-  margin-right: 0.5rem;
-  opacity: 0.7;
-  transition: var(--transition);
-}
-
-.category-item:hover .category-icon,
-.category-item.active .category-icon {
-  opacity: 1;
-}
-
-/* Category Count Badge */
-.category-count {
-  margin-left: auto;
-  background: var(--light-gray);
-  color: var(--text-secondary);
-  padding: 0.125rem 0.375rem;
-  border-radius: 10px;
-  font-size: 0.7rem;
-  font-weight: 600;
-  transition: var(--transition);
-}
-
-.category-item:hover .category-count {
-  background: var(--primary-gold);
-  color: var(--white);
-}
-
-.category-item.active .category-count {
-  background: rgba(255, 255, 255, 0.3);
-  color: var(--white);
-}
-
-/* Responsive Adjustments for Categories */
-@media (max-width: 768px) {
-  .luxury-categories-list {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-    gap: 0.5rem;
-    padding: 0.5rem;
-  }
-
-  .category-content {
-    padding: 0.375rem 0.5rem;
-    font-size: 0.75rem;
-    min-height: 28px;
-    text-align: center;
-    justify-content: center;
-  }
-
-  .luxury-categories-list::before {
-    grid-column: 1 / -1;
-    text-align: center;
-    margin-bottom: 0.5rem;
-  }
-}
-
-/* Filters */
-.filter-group {
-  margin-bottom: 1.5rem;
-}
-
-.filter-label {
-  display: block;
-  font-weight: 600;
-  color: var(--text-primary);
-  margin-bottom: 0.75rem;
-  font-size: 0.9rem;
-}
-
-.price-range {
-  margin-bottom: 1rem;
-}
-
-.price-slider {
-  width: 100%;
-  height: 4px;
-  background: var(--border-light);
-  border-radius: 2px;
-  outline: none;
-  -webkit-appearance: none;
-  appearance: none;
-}
-
-.price-slider::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  appearance: none;
-  width: 18px;
-  height: 18px;
-  background: var(--gradient-gold);
-  border-radius: 50%;
-  cursor: pointer;
-}
-
-.price-display {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 0.5rem;
-  font-size: 0.85rem;
-  color: var(--text-secondary);
-}
-
-.luxury-select {
-  width: 100%;
-  padding: 0.75rem;
-  border: 1px solid var(--border-light);
-  border-radius: var(--border-radius-small);
-  background: var(--white);
-  color: var(--text-primary);
-  font-size: 0.95rem;
-  outline: none;
-  transition: var(--transition);
-}
-
-.luxury-select:focus {
-  border-color: var(--primary-gold);
-  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.1);
-}
-
 /* Products Content */
 .products-content {
   background: var(--white);

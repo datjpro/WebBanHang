@@ -24,98 +24,145 @@
         </div>
 
         <div class="row">
-            <!-- Luxury Sidebar -->
-            <div class="col-lg-3 col-md-4" data-aos="fade-right">
+            <!-- Sidebar -->
+            <div class="col-lg-3" data-aos="fade-right">
                 <div class="luxury-sidebar">
-                    <!-- Search Section -->
-                    <div class="sidebar-section">
-                        <h5 class="sidebar-title">
-                            <i class="fas fa-search me-2"></i>Tìm kiếm
-                        </h5>
-                        <form method="get" class="search-form">
-                            <input type="hidden" name="categoryId" value="@ViewBag.CurrentCategory" />
-                            <div class="luxury-search-group">
-                                <input type="text" name="searchString" value="@ViewBag.SearchString" 
-                                       class="luxury-search-field" placeholder="Tìm kiếm sản phẩm...">
-                                <button class="luxury-search-btn" type="submit">
+                    <!-- Tìm kiếm -->
+                    <div class="sidebar-section search-section">
+                        <h4 class="sidebar-title">Tìm kiếm</h4>
+                        <form asp-action="Index" method="get" class="search-form">
+                            <div class="input-group">
+                                <input type="text" name="searchString" class="form-control" placeholder="Tìm sản phẩm..." 
+                                       value="@ViewBag.SearchString">
+                                <button class="btn luxury-btn-search" type="submit">
                                     <i class="fas fa-search"></i>
                                 </button>
                             </div>
                         </form>
                     </div>
 
-                    <!-- Categories Section -->
-                    <div class="sidebar-section">
-                        <h5 class="sidebar-title">
-                            <i class="fas fa-layer-group me-2"></i>Danh mục
-                        </h5>
-                        <div class="luxury-categories-list">
-                            <a href="@Url.Action("Index")" class="category-item @(ViewBag.CurrentCategory == null ? "active" : "")">
-                                <div class="category-content">
-                                    <i class="fas fa-th-large category-icon"></i>
-                                    <span class="category-name">Tất cả sản phẩm</span>
-                                    <div class="category-arrow">
-                                        <i class="fas fa-chevron-right"></i>
-                                    </div>
-                                </div>
-                            </a>
-                            @foreach (var category in (ViewBag.Categories as List<Category>) ?? new List<Category>())
-                            {
-                                <a href="@Url.Action("Index", new { categoryId = category.Id })" 
-                                   class="category-item @(ViewBag.CurrentCategory == category.Id ? "active" : "")">
-                                    <div class="category-content">
-                                        <i class="fas fa-tags category-icon"></i>
-                                        <span class="category-name">@category.Name</span>
-                                        <div class="category-arrow">
-                                            <i class="fas fa-chevron-right"></i>
-                                        </div>
-                                    </div>
+                    <!-- Danh mục -->
+                    <div class="sidebar-section categories-section">
+                        <h4 class="sidebar-title">Danh mục sản phẩm</h4>
+                        <ul class="categories-list">
+                            <li class="category-item @(ViewBag.CurrentCategory == null ? "active" : "")">
+                                <a asp-action="Index" class="category-link">
+                                    <i class="fas fa-layer-group"></i>
+                                    <span>Tất cả sản phẩm</span>
+                                    <span class="count">@(ViewBag.TotalProducts ?? Model.Count())</span>
                                 </a>
+                            </li>                            @foreach (var category in (ViewBag.Categories as IEnumerable<Category>) ?? Enumerable.Empty<Category>())
+                            {
+                                <li class="category-item @(ViewBag.CurrentCategory != null && ViewBag.CurrentCategory == category.Id ? "active" : "")">
+                                    <a asp-action="Index" asp-route-categoryId="@category.Id" class="category-link">
+                                        <i class="fas fa-tag"></i>
+                                        <span>@category.Name</span>
+                                        <span class="count">@(category.Products?.Count ?? 0)</span>
+                                    </a>
+                                </li>
                             }
-                        </div>
+                        </ul>
                     </div>
 
-                    <!-- Filters Section -->
-                    <div class="sidebar-section">
-                        <h5 class="sidebar-title">
-                            <i class="fas fa-filter me-2"></i>Bộ lọc
-                        </h5>
-                        <div class="filter-group">
-                            <label class="filter-label">Khoảng giá</label>
-                            <div class="price-range">
-                                <input type="range" class="price-slider" min="0" max="10000000" value="5000000">
-                                <div class="price-display">
-                                    <span>0 VNĐ</span>
-                                    <span>10,000,000 VNĐ</span>
+                    <!-- Khoảng giá -->
+                    <div class="sidebar-section price-section">
+                        <h4 class="sidebar-title">Khoảng giá</h4>
+                        <div class="price-filter">
+                            <div class="price-inputs">
+                                <div class="row">
+                                    <div class="col-6">
+                                        <input type="text" class="form-control" id="minPrice" placeholder="Từ">
+                                    </div>
+                                    <div class="col-6">
+                                        <input type="text" class="form-control" id="maxPrice" placeholder="Đến">
+                                    </div>
+                                </div>
+                                <div class="mt-3">
+                                    <button id="priceFilterBtn" class="btn luxury-btn-primary w-100">Áp dụng</button>
+                                </div>
+                            </div>
+                            <div class="price-ranges mt-3">
+                                <div class="price-range-item">
+                                    <label class="price-range-label">
+                                        <input type="radio" name="priceRange" value="0-500000">
+                                        <span>Dưới 500.000₫</span>
+                                    </label>
+                                </div>
+                                <div class="price-range-item">
+                                    <label class="price-range-label">
+                                        <input type="radio" name="priceRange" value="500000-1000000">
+                                        <span>500.000₫ - 1.000.000₫</span>
+                                    </label>
+                                </div>
+                                <div class="price-range-item">
+                                    <label class="price-range-label">
+                                        <input type="radio" name="priceRange" value="1000000-5000000">
+                                        <span>1.000.000₫ - 5.000.000₫</span>
+                                    </label>
+                                </div>
+                                <div class="price-range-item">
+                                    <label class="price-range-label">
+                                        <input type="radio" name="priceRange" value="5000000-">
+                                        <span>Trên 5.000.000₫</span>
+                                    </label>
                                 </div>
                             </div>
                         </div>
-                        <div class="filter-group">
-                            <label class="filter-label">Sắp xếp theo</label>
-                            <select class="luxury-select">
-                                <option>Mới nhất</option>
-                                <option>Giá: Thấp đến cao</option>
-                                <option>Giá: Cao đến thấp</option>
-                                <option>Tên A-Z</option>
-                            </select>
+                    </div>
+
+                    <!-- Sản phẩm nổi bật -->
+                    <div class="sidebar-section featured-section">
+                        <h4 class="sidebar-title">Sản phẩm nổi bật</h4>
+                        <div class="featured-products">
+                            @{
+                                var featuredProducts = Model.OrderBy(p => Guid.NewGuid()).Take(3).ToList();
+                                foreach (var product in featuredProducts)
+                                {
+                                    <div class="featured-product-item">
+                                        <a asp-action="Details" asp-route-id="@product.Id" class="featured-product-link">
+                                            <div class="featured-product-image">
+                                                @if (!string.IsNullOrEmpty(product.ImageUrl))
+                                                {
+                                                    <img src="@product.ImageUrl" alt="@product.Name">
+                                                }
+                                                else
+                                                {
+                                                    <div class="featured-image-placeholder">
+                                                        <i class="fas fa-image"></i>
+                                                    </div>
+                                                }
+                                            </div>
+                                            <div class="featured-product-info">
+                                                <h6 class="featured-product-name">@product.Name</h6>
+                                                <div class="featured-product-price">
+                                                    @product.Price.ToString("C0", new System.Globalization.CultureInfo("vi-VN"))
+                                                </div>
+                                            </div>
+                                        </a>
+                                    </div>
+                                }
+                            }
                         </div>
                     </div>
                 </div>
             </div>
-            
+
             <!-- Products Grid -->
-            <div class="col-lg-9 col-md-8" data-aos="fade-left">
+            <div class="col-lg-9" data-aos="fade-left">
                 <div class="products-content">
                     <!-- Results Info -->
                     <div class="results-info">
-                        <div class="row align-items-center">
-                            <div class="col-md-6">                                <p class="results-text">
+                        <div class="row align-items-center">                            <div class="col-md-6">
+                                <p class="results-text">
                                     Hiển thị <strong>@Model.Count()</strong> sản phẩm
                                     @if (ViewBag.CurrentCategory != null)
                                     {
-                                        var categories = ViewBag.Categories as List<Category> ?? new List<Category>();
-                                        var currentCategoryName = categories.FirstOrDefault(c => c.Id == ViewBag.CurrentCategory)?.Name;
-                                        <span>trong danh mục <strong>@currentCategoryName</strong></span>
+                                        var categories = ViewBag.Categories as IEnumerable<Category>;
+                                        var currentCategoryName = categories?.FirstOrDefault(c => c.Id == ViewBag.CurrentCategory)?.Name;
+                                        if (!string.IsNullOrEmpty(currentCategoryName))
+                                        {
+                                            <span>trong danh mục <strong>@currentCategoryName</strong></span>
+                                        }
                                     }
                                 </p>
                             </div>
@@ -236,3 +283,269 @@
         </div>
     </div>
 </section>
+
+<!-- CSS cho sidebar -->
+<style>
+    .luxury-sidebar {
+        background-color: #fff;
+        border-radius: 10px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+        margin-bottom: 30px;
+    }
+    
+    .sidebar-section {
+        padding: 25px;
+        border-bottom: 1px solid rgba(0,0,0,0.05);
+    }
+    
+    .sidebar-section:last-child {
+        border-bottom: none;
+    }
+    
+    .sidebar-title {
+        font-size: 18px;
+        font-weight: 600;
+        margin-bottom: 20px;
+        color: #333;
+        position: relative;
+        padding-bottom: 10px;
+    }
+    
+    .sidebar-title::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 50px;
+        height: 2px;
+        background: linear-gradient(to right, #c9a96e, #e2d3b4);
+    }
+    
+    /* Tìm kiếm */
+    .search-form .form-control {
+        border: 1px solid #e1e1e1;
+        border-radius: 5px 0 0 5px;
+        height: 46px;
+        padding-left: 15px;
+        box-shadow: none;
+    }
+    
+    .luxury-btn-search {
+        background-color: #c9a96e;
+        color: #fff;
+        border: none;
+        border-radius: 0 5px 5px 0;
+    }
+    
+    .luxury-btn-search:hover {
+        background-color: #b89659;
+        color: #fff;
+    }
+    
+    /* Danh mục */
+    .categories-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    
+    .category-item {
+        margin-bottom: 10px;
+    }
+    
+    .category-link {
+        display: flex;
+        align-items: center;
+        padding: 10px 15px;
+        color: #555;
+        text-decoration: none;
+        border-radius: 5px;
+        transition: all 0.3s ease;
+    }
+    
+    .category-link i {
+        margin-right: 10px;
+        font-size: 14px;
+        color: #c9a96e;
+        width: 20px;
+        text-align: center;
+    }
+    
+    .category-link span.count {
+        margin-left: auto;
+        background-color: #f5f5f5;
+        border-radius: 50px;
+        padding: 2px 8px;
+        font-size: 12px;
+        color: #777;
+        min-width: 30px;
+        text-align: center;
+    }
+    
+    .category-item:hover .category-link {
+        background-color: #f9f5ec;
+        color: #c9a96e;
+    }
+    
+    .category-item.active .category-link {
+        background-color: #f9f5ec;
+        color: #c9a96e;
+        font-weight: 600;
+    }
+    
+    .category-item.active .category-link span.count {
+        background-color: #c9a96e;
+        color: #fff;
+    }
+    
+    /* Khoảng giá */
+    .price-inputs .form-control {
+        height: 40px;
+        text-align: center;
+    }
+    
+    .luxury-btn-primary {
+        background-color: #c9a96e;
+        color: #fff;
+        border: none;
+        transition: all 0.3s ease;
+    }
+    
+    .luxury-btn-primary:hover {
+        background-color: #b89659;
+    }
+    
+    .price-range-item {
+        padding: 5px 0;
+    }
+    
+    .price-range-label {
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+    }
+    
+    .price-range-label input {
+        margin-right: 10px;
+    }
+    
+    /* Sản phẩm nổi bật */
+    .featured-product-item {
+        margin-bottom: 15px;
+        border-bottom: 1px solid #f1f1f1;
+        padding-bottom: 15px;
+    }
+    
+    .featured-product-item:last-child {
+        margin-bottom: 0;
+        border-bottom: none;
+        padding-bottom: 0;
+    }
+    
+    .featured-product-link {
+        display: flex;
+        text-decoration: none;
+    }
+    
+    .featured-product-image {
+        width: 80px;
+        height: 80px;
+        overflow: hidden;
+        border-radius: 5px;
+        background-color: #f9f9f9;
+    }
+    
+    .featured-product-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    
+    .featured-image-placeholder {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #f5f5f5;
+        color: #aaa;
+    }
+    
+    .featured-product-info {
+        flex-grow: 1;
+        padding-left: 15px;
+    }
+    
+    .featured-product-name {
+        color: #333;
+        margin-bottom: 5px;
+        font-size: 14px;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        transition: color 0.3s ease;
+    }
+    
+    .featured-product-price {
+        color: #c9a96e;
+        font-weight: 600;
+        font-size: 14px;
+    }
+    
+    .featured-product-link:hover .featured-product-name {
+        color: #c9a96e;
+    }
+      /* Responsive */
+    @@media (max-width: 991px) {
+        .luxury-sidebar {
+            margin-bottom: 30px;
+        }
+    }
+</style>
+
+<script>
+$(document).ready(function() {
+    // Xử lý khi nhấn nút áp dụng khoảng giá
+    $("#priceFilterBtn").click(function() {
+        var minPrice = $("#minPrice").val();
+        var maxPrice = $("#maxPrice").val();
+        if (minPrice || maxPrice) {
+            var currentUrl = new URL(window.location.href);
+            if (minPrice) currentUrl.searchParams.set("minPrice", minPrice);
+            if (maxPrice) currentUrl.searchParams.set("maxPrice", maxPrice);
+            window.location.href = currentUrl.toString();
+        }
+    });
+    
+    // Xử lý khi chọn radio button khoảng giá
+    $("input[name='priceRange']").change(function() {
+        var range = $(this).val().split('-');
+        var minPrice = range[0];
+        var maxPrice = range[1];
+        var currentUrl = new URL(window.location.href);
+        
+        currentUrl.searchParams.set("minPrice", minPrice);
+        if (maxPrice) {
+            currentUrl.searchParams.set("maxPrice", maxPrice);
+        } else {
+            currentUrl.searchParams.delete("maxPrice");
+        }
+        
+        window.location.href = currentUrl.toString();
+    });
+    
+    // Hiệu ứng cho nút view mode
+    $(".view-btn").click(function() {
+        $(".view-btn").removeClass("active");
+        $(this).addClass("active");
+        
+        var viewMode = $(this).data("view");
+        if (viewMode === "list") {
+            $("#productsGrid").addClass("list-view").removeClass("grid-view");
+        } else {
+            $("#productsGrid").addClass("grid-view").removeClass("list-view");
+        }
+    });
+});
+</script>

@@ -4,76 +4,129 @@
     ViewData["Title"] = "Quản lý danh mục";
 }
 
-<div class="container">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2>@ViewData["Title"]</h2>
-        <a asp-action="Create" class="btn btn-primary">
-            <i class="fas fa-plus"></i> Thêm danh mục mới
-        </a>
+<div class="container py-5">
+    <!-- Header với đường phân cách thanh lọc -->
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h2 class="fw-bold mb-0">
+                <i class="fas fa-tag me-2 text-primary"></i>@ViewData["Title"]
+            </h2>
+            <p class="text-muted mt-2">Quản lý tất cả danh mục sản phẩm trong cửa hàng</p>
+        </div>
+        <div class="col-md-4 text-md-end d-flex align-items-center justify-content-md-end">
+            <a asp-action="Create" class="btn btn-primary px-4">
+                <i class="fas fa-plus-circle me-2"></i> Thêm danh mục mới
+            </a>
+        </div>
     </div>
+
+    <hr class="mb-4" />
 
     @if (Model.Any())
     {
-        <div class="card">
-            <div class="card-body">
-                <div class="table-responsive">
-                    <table class="table table-striped table-hover">
-                        <thead class="table-dark">
-                            <tr>
-                                <th>ID</th>
-                                <th>Tên danh mục</th>
-                                <th>Số sản phẩm</th>
-                                <th>Thao tác</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var item in Model)
-                            {
-                                <tr>
-                                    <td>@item.Id</td>
-                                    <td>
-                                        <strong>@item.Name</strong>
-                                    </td>
-                                    <td>
-                                        <span class="badge bg-info">
-                                            @(item.Products?.Count ?? 0) sản phẩm
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <div class="btn-group" role="group">
-                                            <a asp-action="Details" asp-route-id="@item.Id" 
-                                               class="btn btn-outline-primary btn-sm">
-                                                <i class="fas fa-eye"></i> Chi tiết
-                                            </a>
-                                            <a asp-action="Edit" asp-route-id="@item.Id" 
-                                               class="btn btn-outline-warning btn-sm">
-                                                <i class="fas fa-edit"></i> Sửa
-                                            </a>
-                                            <a asp-action="Delete" asp-route-id="@item.Id" 
-                                               class="btn btn-outline-danger btn-sm">
-                                                <i class="fas fa-trash"></i> Xóa
-                                            </a>
-                                        </div>
-                                    </td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
+        <div class="row">
+            <div class="col-12">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-white py-3">
+                        <div class="row align-items-center">
+                            <div class="col">
+                                <h5 class="mb-0 fw-bold text-primary">
+                                    <i class="fas fa-list-ul me-2"></i> Danh sách danh mục
+                                </h5>
+                            </div>
+                            <div class="col-auto">
+                                <span class="badge bg-primary rounded-pill">@Model.Count() danh mục</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th class="px-4 py-3" style="width: 80px;">ID</th>
+                                        <th class="px-4 py-3">Tên danh mục</th>
+                                        <th class="px-4 py-3 text-center" style="width: 180px;">Số sản phẩm</th>
+                                        <th class="px-4 py-3 text-end" style="width: 240px;">Thao tác</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var item in Model)
+                                    {
+                                        <tr>
+                                            <td class="px-4 py-3 text-center fw-semibold">@item.Id</td>
+                                            <td class="px-4 py-3 fw-semibold">@item.Name</td>
+                                            <td class="px-4 py-3 text-center">
+                                                <div class="d-inline-flex align-items-center px-3 py-1 rounded-pill @(item.Products != null && item.Products.Count > 0 ? "bg-soft-success" : "bg-soft-warning")">
+                                                    <i class="fas fa-box-open me-2 @(item.Products != null && item.Products.Count > 0 ? "text-success" : "text-warning")"></i>
+                                                    <span class="@(item.Products != null && item.Products.Count > 0 ? "text-success" : "text-warning") fw-semibold">
+                                                        @(item.Products != null ? item.Products.Count : 0) sản phẩm
+                                                    </span>
+                                                </div>
+                                            </td>
+                                            <td class="px-4 py-3 text-end">
+                                                <div class="btn-group" role="group">
+                                                    <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-outline-primary btn-sm">
+                                                        <i class="fas fa-eye me-1"></i> Chi tiết
+                                                    </a>
+                                                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-outline-warning btn-sm">
+                                                        <i class="fas fa-pen me-1"></i> Sửa
+                                                    </a>
+                                                    <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-outline-danger btn-sm">
+                                                        <i class="fas fa-trash me-1"></i> Xóa
+                                                    </a>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     }
     else
     {
-        <div class="text-center py-5">
-            <div class="mb-4">
-                <i class="fas fa-folder-open fa-4x text-muted"></i>
+        <div class="card border-0 shadow-sm text-center">
+            <div class="card-body py-5">
+                <div class="py-5">
+                    <div class="d-inline-flex justify-content-center align-items-center mb-4 bg-soft-primary p-4 rounded-circle">
+                        <i class="fas fa-folder-open fa-3x text-primary"></i>
+                    </div>
+                    <h4 class="fw-bold mb-3">Chưa có danh mục nào</h4>
+                    <p class="text-muted mb-4">Bạn chưa có danh mục nào. Hãy tạo danh mục đầu tiên để bắt đầu quản lý sản phẩm.</p>
+                    <a asp-action="Create" class="btn btn-primary px-4 py-2">
+                        <i class="fas fa-plus-circle me-2"></i> Tạo danh mục đầu tiên
+                    </a>
+                </div>
             </div>
-            <h4>Chưa có danh mục nào</h4>
-            <p class="text-muted">Hãy tạo danh mục đầu tiên để bắt đầu.</p>
-            <a asp-action="Create" class="btn btn-primary">
-                <i class="fas fa-plus"></i> Tạo danh mục đầu tiên
-            </a>
         </div>
     }
 </div>
+
+<style>
+    /* Màu nền mềm mại cho trạng thái */
+    .bg-soft-primary { background-color: rgba(13, 110, 253, 0.1); }
+    .bg-soft-success { background-color: rgba(25, 135, 84, 0.1); }
+    .bg-soft-warning { background-color: rgba(255, 193, 7, 0.1); }
+    
+    /* Hiệu ứng hover cho hàng bảng */
+    .table-hover tbody tr:hover {
+        background-color: rgba(13, 110, 253, 0.05);
+    }
+    
+    /* Cải thiện kiểu dáng cho nút */
+    .btn-outline-primary, .btn-outline-warning, .btn-outline-danger {
+        border-width: 1.5px;
+        font-weight: 500;
+    }
+    
+    /* Thêm shadow nhẹ khi hover nút */
+    .btn:hover {
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        transform: translateY(-1px);
+        transition: all 0.2s;
+    }
+</style>
