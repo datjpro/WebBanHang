@@ -1,0 +1,672 @@
+@model WebBanHang.Models.Order
+
+@{
+    ViewData["Title"] = "Chi tiết đơn hàng";
+}
+
+<div class="order-detail-container">
+    <!-- Header Section -->
+    <div class="detail-header">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-8">
+                    <div class="header-content">
+                        <div class="order-status-badge">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Đã hoàn thành</span>
+                        </div>
+                        <h1>Đơn hàng #@Model.Id</h1>
+                        <p class="order-meta">
+                            <i class="far fa-calendar-alt me-2"></i>
+                            Đặt lúc @Model.OrderDate.ToString("dd/MM/yyyy HH:mm")
+                        </p>
+                    </div>
+                </div>
+                <div class="col-lg-4 text-end">
+                    <div class="header-actions">
+                        <a href="@Url.Action("Index")" class="btn btn-outline-light me-2">
+                            <i class="fas fa-arrow-left me-2"></i>Quay lại
+                        </a>
+                        <button onclick="window.print()" class="btn btn-light">
+                            <i class="fas fa-print me-2"></i>In đơn hàng
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container py-5">
+        <div class="row">
+            <!-- Order Information -->
+            <div class="col-lg-8">
+                <!-- Order Items -->
+                <div class="section-card">
+                    <div class="section-header">
+                        <h3><i class="fas fa-box me-3"></i>Sản phẩm đã đặt</h3>
+                        <span class="item-count">@Model.OrderDetails.Count() sản phẩm</span>
+                    </div>
+                    
+                    <div class="items-list">
+                        @foreach (var detail in Model.OrderDetails)
+                        {
+                            <div class="order-item">
+                                <div class="item-image">
+                                    @if (!string.IsNullOrEmpty(detail.Product?.ImageUrl))
+                                    {
+                                        <img src="@detail.Product.ImageUrl" alt="@detail.Product?.Name">
+                                    }
+                                    else
+                                    {
+                                        <div class="placeholder-image">
+                                            <i class="fas fa-image"></i>
+                                        </div>
+                                    }
+                                </div>
+                                
+                                <div class="item-details">
+                                    <h5>@detail.Product?.Name</h5>
+                                    <p class="category">@detail.Product?.Category?.Name</p>
+                                    <div class="item-meta">
+                                        <span class="price">@detail.Price.ToString("C0", new System.Globalization.CultureInfo("vi-VN"))</span>
+                                        <span class="quantity">× @detail.Quantity</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="item-total">
+                                    <span class="total-price">@((detail.Price * detail.Quantity).ToString("C0", new System.Globalization.CultureInfo("vi-VN")))</span>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                    
+                    <!-- Order Summary -->
+                    <div class="order-summary">
+                        <div class="summary-row">
+                            <span>Tạm tính</span>
+                            <span>@Model.TotalPrice.ToString("C0", new System.Globalization.CultureInfo("vi-VN"))</span>
+                        </div>
+                        <div class="summary-row">
+                            <span>Phí vận chuyển</span>
+                            <span class="text-success">Miễn phí</span>
+                        </div>
+                        <div class="summary-row total">
+                            <span>Tổng cộng</span>
+                            <span>@Model.TotalPrice.ToString("C0", new System.Globalization.CultureInfo("vi-VN"))</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Order Timeline -->
+                <div class="section-card">
+                    <div class="section-header">
+                        <h3><i class="fas fa-truck me-3"></i>Trạng thái đơn hàng</h3>
+                    </div>
+                    
+                    <div class="timeline">
+                        <div class="timeline-item active">
+                            <div class="timeline-icon">
+                                <i class="fas fa-shopping-cart"></i>
+                            </div>
+                            <div class="timeline-content">
+                                <h6>Đơn hàng đã được đặt</h6>
+                                <p>@Model.OrderDate.ToString("dd/MM/yyyy HH:mm")</p>
+                            </div>
+                        </div>
+                        
+                        <div class="timeline-item active">
+                            <div class="timeline-icon">
+                                <i class="fas fa-credit-card"></i>
+                            </div>
+                            <div class="timeline-content">
+                                <h6>Thanh toán thành công</h6>
+                                <p>@Model.OrderDate.AddMinutes(2).ToString("dd/MM/yyyy HH:mm")</p>
+                            </div>
+                        </div>
+                        
+                        <div class="timeline-item active">
+                            <div class="timeline-icon">
+                                <i class="fas fa-box"></i>
+                            </div>
+                            <div class="timeline-content">
+                                <h6>Đang chuẩn bị hàng</h6>
+                                <p>@Model.OrderDate.AddHours(1).ToString("dd/MM/yyyy HH:mm")</p>
+                            </div>
+                        </div>
+                        
+                        <div class="timeline-item active">
+                            <div class="timeline-icon">
+                                <i class="fas fa-truck"></i>
+                            </div>
+                            <div class="timeline-content">
+                                <h6>Đang giao hàng</h6>
+                                <p>@Model.OrderDate.AddDays(1).ToString("dd/MM/yyyy HH:mm")</p>
+                            </div>
+                        </div>
+                        
+                        <div class="timeline-item active">
+                            <div class="timeline-icon">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <div class="timeline-content">
+                                <h6>Giao hàng thành công</h6>
+                                <p>@Model.OrderDate.AddDays(2).ToString("dd/MM/yyyy HH:mm")</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="col-lg-4">
+                <!-- Customer Information -->
+                <div class="section-card">
+                    <div class="section-header">
+                        <h3><i class="fas fa-user me-3"></i>Thông tin khách hàng</h3>
+                    </div>
+                    
+                    <div class="customer-info">
+                        <div class="info-row">
+                            <span class="label">Họ tên</span>
+                            <span class="value">@Model.ApplicationUser?.FirstName @Model.ApplicationUser?.LastName</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="label">Email</span>
+                            <span class="value">@Model.ApplicationUser?.Email</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="label">Số điện thoại</span>
+                            <span class="value">@Model.ApplicationUser?.PhoneNumber</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Shipping Information -->
+                <div class="section-card">
+                    <div class="section-header">
+                        <h3><i class="fas fa-map-marker-alt me-3"></i>Địa chỉ giao hàng</h3>
+                    </div>
+                    
+                    <div class="shipping-info">
+                        <p class="address">@Model.ShippingAddress</p>
+                        @if (!string.IsNullOrEmpty(Model.Notes))
+                        {
+                            <div class="notes">
+                                <strong>Ghi chú:</strong>
+                                <p>@Model.Notes</p>
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="section-card">
+                    <div class="section-header">
+                        <h3><i class="fas fa-cog me-3"></i>Thao tác nhanh</h3>
+                    </div>
+                    
+                    <div class="quick-actions">
+                        <button class="action-btn" onclick="reorderItems()">
+                            <i class="fas fa-redo"></i>
+                            <span>Đặt lại đơn hàng</span>
+                        </button>
+                        
+                        <button class="action-btn" onclick="downloadInvoice()">
+                            <i class="fas fa-download"></i>
+                            <span>Tải hóa đơn</span>
+                        </button>
+                        
+                        <button class="action-btn" onclick="contactSupport()">
+                            <i class="fas fa-headset"></i>
+                            <span>Hỗ trợ khách hàng</span>
+                        </button>
+                        
+                        <a href="@Url.Action("Index", "Home")" class="action-btn">
+                            <i class="fas fa-shopping-cart"></i>
+                            <span>Tiếp tục mua sắm</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .order-detail-container {
+        background: linear-gradient(135deg, #f5f7ff 0%, #f8f9ff 100%);
+        min-height: 100vh;
+    }
+
+    .detail-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 60px 0 40px;
+    }
+
+    .order-status-badge {
+        display: inline-flex;
+        align-items: center;
+        background: rgba(255,255,255,0.2);
+        padding: 8px 16px;
+        border-radius: 25px;
+        font-size: 0.9rem;
+        margin-bottom: 15px;
+    }
+
+    .order-status-badge i {
+        margin-right: 8px;
+        color: #28a745;
+    }
+
+    .header-content h1 {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 10px;
+    }
+
+    .order-meta {
+        opacity: 0.9;
+        font-size: 1.1rem;
+        margin: 0;
+    }
+
+    .header-actions .btn {
+        border-radius: 25px;
+        padding: 10px 20px;
+        font-weight: 600;
+    }
+
+    /* Section Cards */
+    .section-card {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 15px 35px rgba(0,0,0,0.08);
+        border: 1px solid #f1f3f4;
+        margin-bottom: 30px;
+        overflow: hidden;
+    }
+
+    .section-header {
+        padding: 25px 30px;
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border-bottom: 1px solid #eee;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .section-header h3 {
+        margin: 0;
+        color: #495057;
+        font-weight: 700;
+        font-size: 1.25rem;
+    }
+
+    .item-count {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 5px 12px;
+        border-radius: 15px;
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
+
+    /* Order Items */
+    .items-list {
+        padding: 30px;
+    }
+
+    .order-item {
+        display: flex;
+        align-items: center;
+        padding: 20px 0;
+        border-bottom: 1px solid #f8f9fa;
+        transition: all 0.3s ease;
+    }
+
+    .order-item:last-child {
+        border-bottom: none;
+    }
+
+    .order-item:hover {
+        background: #f8f9fa;
+        margin: 0 -30px;
+        padding: 20px 30px;
+        border-radius: 10px;
+    }
+
+    .item-image {
+        width: 80px;
+        height: 80px;
+        margin-right: 20px;
+        border-radius: 12px;
+        overflow: hidden;
+    }
+
+    .item-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .placeholder-image {
+        width: 100%;
+        height: 100%;
+        background: #f8f9fa;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #6c757d;
+        font-size: 24px;
+    }
+
+    .item-details {
+        flex: 1;
+    }
+
+    .item-details h5 {
+        margin: 0 0 5px 0;
+        font-weight: 600;
+        color: #495057;
+    }
+
+    .item-details .category {
+        color: #6c757d;
+        font-size: 0.9rem;
+        margin: 0 0 10px 0;
+    }
+
+    .item-meta {
+        display: flex;
+        gap: 15px;
+        align-items: center;
+    }
+
+    .item-meta .price {
+        color: #667eea;
+        font-weight: 600;
+    }
+
+    .item-meta .quantity {
+        color: #6c757d;
+        font-size: 0.9rem;
+    }
+
+    .item-total {
+        text-align: right;
+    }
+
+    .total-price {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: #28a745;
+    }
+
+    /* Order Summary */
+    .order-summary {
+        background: #f8f9fa;
+        padding: 25px 30px;
+        border-top: 1px solid #eee;
+    }
+
+    .summary-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 0;
+    }
+
+    .summary-row.total {
+        border-top: 2px solid #dee2e6;
+        margin-top: 15px;
+        padding-top: 20px;
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: #495057;
+    }
+
+    .summary-row.total span:last-child {
+        color: #28a745;
+        font-size: 1.4rem;
+    }
+
+    /* Timeline */
+    .timeline {
+        padding: 30px;
+    }
+
+    .timeline-item {
+        display: flex;
+        align-items: flex-start;
+        margin-bottom: 30px;
+        position: relative;
+    }
+
+    .timeline-item::before {
+        content: '';
+        position: absolute;
+        left: 25px;
+        top: 50px;
+        width: 2px;
+        height: 60px;
+        background: #e9ecef;
+    }
+
+    .timeline-item:last-child::before {
+        display: none;
+    }
+
+    .timeline-item.active::before {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+
+    .timeline-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background: #e9ecef;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 20px;
+        color: #6c757d;
+        flex-shrink: 0;
+    }
+
+    .timeline-item.active .timeline-icon {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+    }
+
+    .timeline-content h6 {
+        margin: 0 0 5px 0;
+        font-weight: 600;
+        color: #495057;
+    }
+
+    .timeline-content p {
+        margin: 0;
+        color: #6c757d;
+        font-size: 0.9rem;
+    }
+
+    /* Customer Info */
+    .customer-info,
+    .shipping-info {
+        padding: 30px;
+    }
+
+    .info-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px 0;
+        border-bottom: 1px solid #f8f9fa;
+    }
+
+    .info-row:last-child {
+        border-bottom: none;
+    }
+
+    .info-row .label {
+        color: #6c757d;
+        font-weight: 500;
+    }
+
+    .info-row .value {
+        color: #495057;
+        font-weight: 600;
+        text-align: right;
+    }
+
+    .shipping-info .address {
+        color: #495057;
+        font-weight: 600;
+        margin-bottom: 15px;
+        line-height: 1.6;
+    }
+
+    .notes {
+        background: #f8f9fa;
+        padding: 15px;
+        border-radius: 10px;
+        margin-top: 15px;
+    }
+
+    .notes strong {
+        color: #495057;
+    }
+
+    .notes p {
+        margin: 5px 0 0 0;
+        color: #6c757d;
+    }
+
+    /* Quick Actions */
+    .quick-actions {
+        padding: 30px;
+    }
+
+    .action-btn {
+        display: flex;
+        align-items: center;
+        width: 100%;
+        padding: 15px 20px;
+        background: white;
+        border: 2px solid #f1f3f4;
+        border-radius: 12px;
+        margin-bottom: 10px;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        color: #495057;
+        font-weight: 500;
+    }
+
+    .action-btn:hover {
+        border-color: #667eea;
+        background: #f8f9ff;
+        color: #667eea;
+        transform: translateX(5px);
+    }
+
+    .action-btn i {
+        width: 20px;
+        margin-right: 15px;
+        font-size: 16px;
+    }    /* Print Styles */
+    @@media print {
+        .detail-header .header-actions,
+        .quick-actions {
+            display: none !important;
+        }
+        
+        .section-card {
+            box-shadow: none !important;
+            border: 1px solid #ddd !important;
+        }
+        
+        .order-detail-container {
+            background: white !important;
+        }
+    }
+
+    /* Responsive */
+    @@media (max-width: 768px) {
+        .detail-header {
+            padding: 40px 0 30px;
+        }
+
+        .header-content h1 {
+            font-size: 2rem;
+        }
+
+        .header-actions {
+            margin-top: 20px;
+        }
+
+        .order-item {
+            flex-direction: column;
+            text-align: center;
+        }
+
+        .item-image {
+            margin-right: 0;
+            margin-bottom: 15px;
+        }
+
+        .item-details,
+        .item-total {
+            text-align: center;
+            width: 100%;
+        }
+
+        .timeline-item {
+            flex-direction: column;
+            text-align: center;
+        }
+
+        .timeline-icon {
+            margin-right: 0;
+            margin-bottom: 15px;
+        }
+
+        .info-row {
+            flex-direction: column;
+            text-align: center;
+            gap: 5px;
+        }
+    }
+</style>
+
+<script>
+    function reorderItems() {
+        if (confirm('Bạn có muốn đặt lại tất cả sản phẩm trong đơn hàng này không?')) {
+            alert('Tính năng đang được phát triển!');
+        }
+    }
+
+    function downloadInvoice() {
+        alert('Tính năng tải hóa đơn đang được phát triển!');
+    }
+
+    function contactSupport() {
+        alert('Hotline hỗ trợ: 1900-1234\nEmail: support@webbanghang.com');
+    }
+
+    // Add entrance animation
+    document.addEventListener('DOMContentLoaded', function() {
+        const cards = document.querySelectorAll('.section-card');
+        cards.forEach((card, index) => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(30px)';
+            card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+            
+            setTimeout(() => {
+                card.style.opacity = '1';
+                card.style.transform = 'translateY(0)';
+            }, index * 150);
+        });
+    });
+</script>

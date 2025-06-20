@@ -1,161 +1,509 @@
 @model ManageUserRolesViewModel
 @{
     ViewData["Title"] = "Quản lý vai trò";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
 }
 
-<div class="container-fluid mt-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1>
-            <i class="fas fa-user-cog me-2"></i>
-            Quản lý vai trò
-        </h1>
-        <a href="@Url.Action("Index", "User", new { area = "Admin" })" class="btn btn-secondary">
-            <i class="fas fa-arrow-left me-2"></i>
-            Quay lại
-        </a>
-    </div>
-
-    <div class="row">
-        <!-- User Information -->
-        <div class="col-md-4">
-            <div class="card shadow mb-4">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">
-                        <i class="fas fa-user me-2"></i>
-                        Thông tin người dùng
-                    </h6>
-                </div>
-                <div class="card-body">
-                    <div class="text-center mb-3">
-                        <div class="avatar-circle bg-primary text-white mb-2">
-                            <i class="fas fa-user fa-2x"></i>
-                        </div>
-                        <h5>@Model.User.FirstName @Model.User.LastName</h5>
-                    </div>
-                    <ul class="list-group list-group-flush">
-                        <li class="list-group-item d-flex justify-content-between">
-                            <strong>Email:</strong>
-                            <span>@Model.User.Email</span>
-                        </li>
-                        <li class="list-group-item d-flex justify-content-between">
-                            <strong>Điện thoại:</strong>
-                            <span>@Model.User.PhoneNumber</span>
-                        </li>
-                        <li class="list-group-item d-flex justify-content-between">
-                            <strong>Địa chỉ:</strong>
-                            <span>@Model.User.Address</span>
-                        </li>
-                    </ul>
-                </div>
+<!-- Page Header -->
+<div class="page-header">
+    <div class="page-header-content">
+        <div class="page-title">
+            <div class="page-title-icon">
+                <i class="fas fa-user-cog"></i>
+            </div>
+            <div class="page-title-text">
+                <h1>Quản lý vai trò</h1>
+                <p>Phân quyền vai trò cho người dùng @Model.User.FirstName @Model.User.LastName</p>
             </div>
         </div>
-
-        <!-- Role Management -->
-        <div class="col-md-8">
-            <div class="card shadow">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">
-                        <i class="fas fa-users-cog me-2"></i>
-                        Phân quyền vai trò
-                    </h6>
-                </div>
-                <div class="card-body">
-                    <form asp-action="ManageRoles" method="post">
-                        <input type="hidden" name="userId" value="@Model.User.Id" />
-                        
-                        <div class="mb-4">
-                            <h6 class="font-weight-bold text-secondary mb-3">
-                                <i class="fas fa-shield-alt me-2"></i>
-                                Vai trò hiện tại:
-                            </h6>
-                            @if (Model.UserRoles.Any())
-                            {
-                                @foreach (var role in Model.UserRoles)
-                                {
-                                    <span class="badge 
-                                        @(role == "Admin" ? "bg-danger" : 
-                                          role == "Company" ? "bg-warning" : 
-                                          role == "Employee" ? "bg-info" : "bg-success") me-2 mb-2">
-                                        <i class="fas fa-user-tag me-1"></i>
-                                        @role
-                                    </span>
-                                }
-                            }
-                            else
-                            {
-                                <span class="badge bg-secondary">
-                                    <i class="fas fa-exclamation-circle me-1"></i>
-                                    Chưa có vai trò nào
-                                </span>
-                            }
-                        </div>
-
-                        <div class="mb-4">
-                            <h6 class="font-weight-bold text-secondary mb-3">
-                                <i class="fas fa-check-square me-2"></i>
-                                Chọn vai trò mới:
-                            </h6>
-                            <div class="row">
-                                @foreach (var role in Model.AllRoles)
-                                {
-                                    <div class="col-md-6 mb-3">
-                                        <div class="form-check form-check-lg">
-                                            <input class="form-check-input" type="checkbox" 
-                                                   name="selectedRoles" value="@role.Value" 
-                                                   id="role_@role.Value" @(role.Selected ? "checked" : "")>
-                                            <label class="form-check-label fw-bold" for="role_@role.Value">
-                                                <i class="fas @(role.Value == "Admin" ? "fa-crown text-danger" : 
-                                                                role.Value == "Company" ? "fa-building text-warning" : 
-                                                                role.Value == "Employee" ? "fa-user-tie text-info" : "fa-user text-success") me-2"></i>
-                                                @role.Text
-                                                <br>
-                                                <small class="text-muted">
-                                                    @(role.Value == "Admin" ? "Quản trị viên - Quyền cao nhất" : 
-                                                      role.Value == "Company" ? "Công ty - Quản lý sản phẩm" : 
-                                                      role.Value == "Employee" ? "Nhân viên - Hỗ trợ khách hàng" : "Khách hàng - Mua sắm")
-                                                </small>
-                                            </label>
-                                        </div>
-                                    </div>
-                                }
-                            </div>
-                        </div>
-
-                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                            <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-save me-2"></i>
-                                Cập nhật vai trò
-                            </button>
-                            <a href="@Url.Action("Index", "User", new { area = "Admin" })" class="btn btn-secondary">
-                                <i class="fas fa-times me-2"></i>
-                                Hủy bỏ
-                            </a>
-                        </div>
-                    </form>
-                </div>
-            </div>
+        <div class="page-actions">
+            <a href="@Url.Action("Index", "User", new { area = "Admin" })" class="btn btn-outline-primary">
+                <i class="fas fa-arrow-left me-2"></i>
+                Quay lại
+            </a>
         </div>
     </div>
 </div>
 
-<style>
-.avatar-circle {
+<div class="row g-4">
+    <!-- User Information Card -->
+    <div class="col-lg-4">
+        <div class="content-card">
+            <div class="content-header">
+                <div class="content-title">
+                    <i class="fas fa-user me-2"></i>
+                    Thông tin người dùng
+                </div>
+            </div>
+            
+            <div class="user-profile">
+                <div class="user-avatar-large">
+                    <i class="fas fa-user"></i>
+                </div>
+                <div class="user-info-detailed">
+                    <h3>@Model.User.FirstName @Model.User.LastName</h3>
+                    <div class="user-status">
+                        @if (Model.User.LockoutEnd != null && Model.User.LockoutEnd > DateTimeOffset.UtcNow)
+                        {
+                            <span class="status-badge status-locked">
+                                <i class="fas fa-lock me-1"></i>
+                                Đã khóa
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="status-badge status-active">
+                                <i class="fas fa-check-circle me-1"></i>
+                                Hoạt động
+                            </span>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <div class="user-details-list">
+                <div class="detail-item">
+                    <div class="detail-label">
+                        <i class="fas fa-envelope me-2"></i>
+                        Email
+                    </div>
+                    <div class="detail-value">@Model.User.Email</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">
+                        <i class="fas fa-phone me-2"></i>
+                        Điện thoại
+                    </div>
+                    <div class="detail-value">@(string.IsNullOrEmpty(Model.User.PhoneNumber) ? "Chưa có" : Model.User.PhoneNumber)</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">
+                        <i class="fas fa-map-marker-alt me-2"></i>
+                        Địa chỉ
+                    </div>
+                    <div class="detail-value">@(string.IsNullOrEmpty(Model.User.Address) ? "Chưa có" : Model.User.Address)</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">
+                        <i class="fas fa-calendar me-2"></i>
+                        Ngày tham gia
+                    </div>
+                    <div class="detail-value">@Model.User.Id.Substring(0, 8)...</div>
+                </div>
+            </div>
+
+            <div class="current-roles">
+                <h5>
+                    <i class="fas fa-shield-alt me-2"></i>
+                    Vai trò hiện tại
+                </h5>
+                <div class="roles-display">
+                    @if (Model.UserRoles.Any())
+                    {
+                        @foreach (var role in Model.UserRoles)
+                        {
+                            <span class="role-badge role-@role.ToLower() role-current">
+                                <i class="fas @(role == "Admin" ? "fa-crown" : 
+                                              role == "Company" ? "fa-building" : 
+                                              role == "Employee" ? "fa-user-tie" : "fa-user") me-1"></i>
+                                @role
+                            </span>
+                        }
+                    }
+                    else
+                    {
+                        <span class="role-badge role-none">
+                            <i class="fas fa-exclamation-circle me-1"></i>
+                            Chưa có vai trò nào
+                        </span>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Role Management Card -->
+    <div class="col-lg-8">
+        <div class="content-card">
+            <div class="content-header">
+                <div class="content-title">
+                    <i class="fas fa-users-cog me-2"></i>
+                    Phân quyền vai trò
+                </div>
+            </div>
+            
+            <form asp-action="ManageRoles" method="post" id="roleForm">
+                <input type="hidden" name="userId" value="@Model.User.Id" />
+                
+                <div class="roles-grid">
+                    @foreach (var role in Model.AllRoles)
+                    {
+                        <div class="role-card @(role.Selected ? "selected" : "")">
+                            <div class="role-checkbox">
+                                <input class="form-check-input" type="checkbox" 
+                                       name="selectedRoles" value="@role.Value" 
+                                       id="role_@role.Value" @(role.Selected ? "checked" : "")>
+                            </div>
+                            <div class="role-info">
+                                <div class="role-icon">
+                                    <i class="fas @(role.Value == "Admin" ? "fa-crown" : 
+                                                  role.Value == "Company" ? "fa-building" : 
+                                                  role.Value == "Employee" ? "fa-user-tie" : "fa-user")"></i>
+                                </div>
+                                <div class="role-details">
+                                    <div class="role-name">@role.Text</div>
+                                    <div class="role-description">
+                                        @(role.Value == "Admin" ? "Quản trị viên - Quyền cao nhất trong hệ thống" : 
+                                          role.Value == "Company" ? "Công ty - Quản lý sản phẩm và đơn hàng" : 
+                                          role.Value == "Employee" ? "Nhân viên - Hỗ trợ khách hàng và xử lý đơn hàng" : "Khách hàng - Mua sắm và đặt hàng")
+                                    </div>
+                                    <div class="role-permissions">
+                                        @if (role.Value == "Admin")
+                                        {
+                                            <span class="permission-tag">Toàn quyền</span>
+                                            <span class="permission-tag">Quản lý người dùng</span>
+                                            <span class="permission-tag">Quản lý hệ thống</span>
+                                        }
+                                        else if (role.Value == "Company")
+                                        {
+                                            <span class="permission-tag">Quản lý sản phẩm</span>
+                                            <span class="permission-tag">Xem báo cáo</span>
+                                        }
+                                        else if (role.Value == "Employee")
+                                        {
+                                            <span class="permission-tag">Hỗ trợ khách hàng</span>
+                                            <span class="permission-tag">Xử lý đơn hàng</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="permission-tag">Mua sắm</span>
+                                            <span class="permission-tag">Đặt hàng</span>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary btn-lg">
+                        <i class="fas fa-save me-2"></i>
+                        Cập nhật vai trò
+                    </button>
+                    <a href="@Url.Action("Index", "User", new { area = "Admin" })" class="btn btn-outline-secondary btn-lg">
+                        <i class="fas fa-times me-2"></i>
+                        Hủy bỏ
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div><style>
+.user-profile {
+    text-align: center;
+    padding: 20px 0;
+    border-bottom: 1px solid #eee;
+    margin-bottom: 20px;
+}
+
+.user-avatar-large {
     width: 80px;
     height: 80px;
     border-radius: 50%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     display: flex;
     align-items: center;
     justify-content: center;
-    margin: 0 auto;
+    margin: 0 auto 15px;
+    color: white;
+    font-size: 24px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
 }
 
-.form-check-lg .form-check-input {
-    width: 1.5rem;
-    height: 1.5rem;
+.user-info-detailed h3 {
+    margin: 0 0 10px 0;
+    color: #2c3e50;
+    font-weight: 600;
 }
 
-.form-check-lg .form-check-label {
-    padding-left: 0.5rem;
+.user-details-list {
+    margin-bottom: 20px;
+}
+
+.detail-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid #f8f9fa;
+}
+
+.detail-item:last-child {
+    border-bottom: none;
+}
+
+.detail-label {
+    font-weight: 500;
+    color: #7f8c8d;
+    font-size: 14px;
+}
+
+.detail-value {
+    color: #2c3e50;
+    font-weight: 500;
+    text-align: right;
+    max-width: 60%;
+    word-break: break-word;
+}
+
+.current-roles {
+    padding-top: 20px;
+    border-top: 1px solid #eee;
+}
+
+.current-roles h5 {
+    margin-bottom: 15px;
+    color: #2c3e50;
+    font-weight: 600;
+    font-size: 16px;
+}
+
+.roles-display {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.role-current {
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    animation: pulse-role 2s infinite;
+}
+
+@@keyframes pulse-role {
+    0% { box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+    50% { box-shadow: 0 4px 16px rgba(0,0,0,0.2); }
+    100% { box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+}
+
+.roles-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.role-card {
+    border: 2px solid #e9ecef;
+    border-radius: 12px;
+    padding: 20px;
+    background: white;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+}
+
+.role-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+    transform: scaleX(0);
+    transition: transform 0.3s ease;
+}
+
+.role-card:hover::before,
+.role-card.selected::before {
+    transform: scaleX(1);
+}
+
+.role-card:hover {
+    border-color: #667eea;
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.15);
+    transform: translateY(-2px);
+}
+
+.role-card.selected {
+    border-color: #667eea;
+    background: linear-gradient(135deg, #f8f9ff 0%, #e9ecff 100%);
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.2);
+}
+
+.role-checkbox {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+}
+
+.role-checkbox .form-check-input {
+    width: 20px;
+    height: 20px;
+    border: 2px solid #667eea;
+    border-radius: 4px;
+}
+
+.role-checkbox .form-check-input:checked {
+    background-color: #667eea;
+    border-color: #667eea;
+}
+
+.role-info {
+    display: flex;
+    align-items: flex-start;
+    gap: 15px;
+}
+
+.role-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 20px;
+    flex-shrink: 0;
+}
+
+.role-details {
+    flex: 1;
+}
+
+.role-name {
+    font-size: 18px;
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 8px;
+}
+
+.role-description {
+    font-size: 14px;
+    color: #7f8c8d;
+    line-height: 1.5;
+    margin-bottom: 12px;
+}
+
+.role-permissions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.permission-tag {
+    padding: 4px 8px;
+    background: linear-gradient(135deg, #e9ecef, #dee2e6);
+    color: #495057;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 500;
+}
+
+.role-card.selected .permission-tag {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+}
+
+.form-actions {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    padding-top: 20px;
+    border-top: 1px solid #eee;
+}
+
+.btn-lg {
+    padding: 12px 30px;
+    font-size: 16px;
+    font-weight: 500;
+    border-radius: 8px;
+}
+
+@@media (max-width: 768px) {
+    .roles-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .form-actions {
+        flex-direction: column;
+    }
+    
+    .detail-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 5px;
+    }
+    
+    .detail-value {
+        max-width: 100%;
+        text-align: left;
+    }
 }
 </style>
+
+<script>
+$(document).ready(function() {
+    // Role card click handler
+    $('.role-card').on('click', function() {
+        var checkbox = $(this).find('input[type="checkbox"]');
+        checkbox.prop('checked', !checkbox.prop('checked'));
+        $(this).toggleClass('selected');
+    });
+    
+    // Checkbox change handler
+    $('input[type="checkbox"]').on('change', function() {
+        var card = $(this).closest('.role-card');
+        if ($(this).is(':checked')) {
+            card.addClass('selected');
+        } else {
+            card.removeClass('selected');
+        }
+    });
+    
+    // Form submission with confirmation
+    $('#roleForm').on('submit', function(e) {
+        e.preventDefault();
+        
+        var selectedRoles = [];
+        $('input[name="selectedRoles"]:checked').each(function() {
+            selectedRoles.push($(this).val());
+        });
+        
+        var message = selectedRoles.length > 0 
+            ? `Bạn có chắc muốn cập nhật vai trò thành: ${selectedRoles.join(', ')}?`
+            : 'Bạn có chắc muốn xóa tất cả vai trò của người dùng này?';
+            
+        Swal.fire({
+            title: 'Xác nhận cập nhật',
+            text: message,
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#667eea',
+            cancelButtonColor: '#95a5a6',
+            confirmButtonText: 'Cập nhật',
+            cancelButtonText: 'Hủy bỏ'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                this.submit();
+            }
+        });
+    });
+    
+    // Show success message if exists
+    @if (TempData["Success"] != null)
+    {
+        <text>
+        toastr.success('@TempData["Success"]', 'Thành công!', {
+            "closeButton": true,
+            "progressBar": true,
+            "positionClass": "toast-top-right",
+            "timeOut": "3000"
+        });
+        </text>
+    }
+});
+</script>

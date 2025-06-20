@@ -1,0 +1,1029 @@
+@model IEnumerable<WebBanHang.Models.Order>
+
+@{
+    ViewData["Title"] = "Quản lý đơn hàng";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<!-- Enhanced Header with Gradient Background -->
+<div class="admin-header-wrapper">
+    <div class="container-fluid">
+        <div class="row align-items-center py-4">
+            <div class="col-md-6">
+                <div class="admin-title-section">
+                    <div class="title-icon">
+                        <i class="fas fa-clipboard-list"></i>
+                    </div>
+                    <div>
+                        <h1 class="admin-title mb-1">Quản lý đơn hàng</h1>
+                        <p class="admin-subtitle mb-0">Theo dõi và xử lý các đơn hàng từ khách hàng</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 text-end">
+                <div class="admin-actions">
+                    <button class="btn btn-refresh" onclick="refreshOrders()">
+                        <i class="fas fa-sync-alt me-2"></i>Làm mới
+                    </button>
+                    <button class="btn btn-export" onclick="exportOrders()">
+                        <i class="fas fa-download me-2"></i>Xuất Excel
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="content-wrapper admin-content">
+
+    <!-- Main content -->
+    <section class="content">
+        <div class="container-fluid">    <!-- Modern Stats Dashboard -->
+    <section class="stats-section">
+        <div class="container-fluid">
+            <div class="row g-4 mb-5">
+                <div class="col-xl-3 col-md-6">
+                    <div class="stats-card stats-primary">
+                        <div class="stats-content">
+                            <div class="stats-icon">
+                                <i class="fas fa-shopping-cart"></i>
+                            </div>
+                            <div class="stats-details">
+                                <h3 class="stats-number">@Model.Count()</h3>
+                                <p class="stats-label">Tổng đơn hàng</p>
+                                <div class="stats-trend">
+                                    <i class="fas fa-arrow-up"></i>
+                                    <span>+12% so với tháng trước</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="stats-gradient primary-gradient"></div>
+                    </div>
+                </div>
+                
+                <div class="col-xl-3 col-md-6">
+                    <div class="stats-card stats-success">
+                        <div class="stats-content">
+                            <div class="stats-icon">
+                                <i class="fas fa-calendar-check"></i>
+                            </div>
+                            <div class="stats-details">
+                                <h3 class="stats-number">@Model.Where(o => o.OrderDate.Date == DateTime.Today).Count()</h3>
+                                <p class="stats-label">Đơn hôm nay</p>
+                                <div class="stats-trend">
+                                    <i class="fas fa-arrow-up"></i>
+                                    <span>+8% so với hôm qua</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="stats-gradient success-gradient"></div>
+                    </div>
+                </div>
+                
+                <div class="col-xl-3 col-md-6">
+                    <div class="stats-card stats-warning">
+                        <div class="stats-content">
+                            <div class="stats-icon">
+                                <i class="fas fa-coins"></i>
+                            </div>
+                            <div class="stats-details">
+                                <h3 class="stats-number">@Model.Sum(o => o.TotalPrice).ToString("C0", new System.Globalization.CultureInfo("vi-VN"))</h3>
+                                <p class="stats-label">Tổng doanh thu</p>
+                                <div class="stats-trend">
+                                    <i class="fas fa-arrow-up"></i>
+                                    <span>+24% so với tháng trước</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="stats-gradient warning-gradient"></div>
+                    </div>
+                </div>
+                
+                <div class="col-xl-3 col-md-6">
+                    <div class="stats-card stats-info">
+                        <div class="stats-content">
+                            <div class="stats-icon">
+                                <i class="fas fa-chart-line"></i>
+                            </div>
+                            <div class="stats-details">
+                                <h3 class="stats-number">@(Model.Any() ? Model.Average(o => o.TotalPrice).ToString("C0", new System.Globalization.CultureInfo("vi-VN")) : "0")</h3>
+                                <p class="stats-label">Giá trị TB</p>
+                                <div class="stats-trend">
+                                    <i class="fas fa-arrow-up"></i>
+                                    <span>+5% so với tháng trước</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="stats-gradient info-gradient"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>    <!-- Advanced Orders Table -->
+    <section class="orders-section">
+        <div class="container-fluid">
+            <div class="orders-card">
+                <div class="orders-header">
+                    <div class="header-content">
+                        <h2 class="section-title">
+                            <i class="fas fa-list-alt me-3"></i>
+                            Danh sách đơn hàng
+                        </h2>
+                        <div class="header-filters">
+                            <div class="filter-group">
+                                <select class="form-select filter-select" id="statusFilter">
+                                    <option value="">Tất cả trạng thái</option>
+                                    <option value="pending">Chờ xử lý</option>
+                                    <option value="processing">Đang xử lý</option>
+                                    <option value="completed">Hoàn thành</option>
+                                    <option value="cancelled">Đã hủy</option>
+                                </select>
+                            </div>
+                            <div class="filter-group">
+                                <input type="date" class="form-control filter-date" id="dateFilter">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="orders-content">
+                    @if (Model != null && Model.Any())
+                    {
+                        <div class="table-container">
+                            <table class="table orders-table" id="ordersTable">
+                                <thead>
+                                    <tr>
+                                        <th class="th-center">#</th>
+                                        <th class="th-order">Đơn hàng</th>
+                                        <th class="th-customer">Khách hàng</th>
+                                        <th class="th-date">Thời gian</th>
+                                        <th class="th-amount">Số tiền</th>
+                                        <th class="th-address">Địa chỉ</th>
+                                        <th class="th-items">Items</th>
+                                        <th class="th-status">Trạng thái</th>
+                                        <th class="th-actions">Thao tác</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @{int index = 1;}
+                                    @foreach (var order in Model.OrderByDescending(o => o.OrderDate))
+                                    {
+                                        <tr class="order-row" data-order-id="@order.Id" data-aos="fade-up" data-aos-delay="@((index-1)*50)">
+                                            <td class="td-center">
+                                                <div class="row-number">@index</div>
+                                            </td>
+                                            <td class="td-order">
+                                                <div class="order-info">
+                                                    <span class="order-id">#ORD-@order.Id.ToString("D6")</span>
+                                                    <div class="order-meta">
+                                                        <span class="items-count">@order.OrderDetails.Sum(od => od.Quantity) sản phẩm</span>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td class="td-customer">
+                                                <div class="customer-info">
+                                                    <div class="customer-avatar">
+                                                        <i class="fas fa-user"></i>
+                                                    </div>
+                                                    <div class="customer-details">
+                                                        <div class="customer-name">@order.ApplicationUser?.FirstName @order.ApplicationUser?.LastName</div>
+                                                        <div class="customer-email">@order.ApplicationUser?.Email</div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td class="td-date">
+                                                <div class="date-info">
+                                                    <div class="date-main">@order.OrderDate.ToString("dd/MM/yyyy")</div>
+                                                    <div class="date-time">@order.OrderDate.ToString("HH:mm")</div>
+                                                </div>
+                                            </td>
+                                            <td class="td-amount">
+                                                <div class="amount-info">
+                                                    <span class="amount-value">@order.TotalPrice.ToString("C0", new System.Globalization.CultureInfo("vi-VN"))</span>
+                                                </div>
+                                            </td>
+                                            <td class="td-address">
+                                                <div class="address-info" title="@order.ShippingAddress">
+                                                    <i class="fas fa-map-marker-alt me-2"></i>
+                                                    <span class="address-text">@(order.ShippingAddress.Length > 30 ? order.ShippingAddress.Substring(0, 30) + "..." : order.ShippingAddress)</span>
+                                                </div>
+                                            </td>
+                                            <td class="td-items">
+                                                <div class="items-badge">
+                                                    <span class="badge-items">@order.OrderDetails.Sum(od => od.Quantity)</span>
+                                                </div>
+                                            </td>
+                                            <td class="td-status">
+                                                <div class="status-badge status-processing">
+                                                    <i class="fas fa-clock"></i>
+                                                    <span>Đang xử lý</span>
+                                                </div>
+                                            </td>
+                                            <td class="td-actions">
+                                                <div class="action-buttons">
+                                                    <a href="@Url.Action("Details", new { id = order.Id })" 
+                                                       class="action-btn btn-view" title="Xem chi tiết">
+                                                        <i class="fas fa-eye"></i>
+                                                    </a>
+                                                    <button type="button" class="action-btn btn-edit" 
+                                                            onclick="editOrder(@order.Id)" title="Chỉnh sửa">
+                                                        <i class="fas fa-edit"></i>
+                                                    </button>
+                                                    <button type="button" class="action-btn btn-delete" 
+                                                            onclick="deleteOrder(@order.Id)" title="Xóa đơn hàng">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        index++;
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="empty-state">
+                            <div class="empty-icon">
+                                <i class="fas fa-inbox"></i>
+                            </div>
+                            <h3 class="empty-title">Chưa có đơn hàng nào</h3>
+                            <p class="empty-description">Các đơn hàng từ khách hàng sẽ hiển thị tại đây khi có.</p>
+                            <button class="btn btn-primary" onclick="location.reload()">
+                                <i class="fas fa-sync-alt me-2"></i>Làm mới
+                            </button>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </section>
+        </div>
+    </section>
+</div>
+
+<!-- Enhanced Modern CSS -->
+<style>
+    /* === HEADER STYLES === */
+    .admin-header-wrapper {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        margin: -20px -20px 30px -20px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    }
+
+    .admin-title-section {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+    }
+
+    .title-icon {
+        width: 60px;
+        height: 60px;
+        background: rgba(255,255,255,0.2);
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        backdrop-filter: blur(10px);
+    }
+
+    .admin-title {
+        font-size: 2rem;
+        font-weight: 700;
+        margin: 0;
+        color: white;
+    }
+
+    .admin-subtitle {
+        color: rgba(255,255,255,0.8);
+        font-size: 1rem;
+    }
+
+    .admin-actions {
+        display: flex;
+        gap: 12px;
+    }
+
+    .btn-refresh, .btn-export {
+        background: rgba(255,255,255,0.15);
+        border: 1px solid rgba(255,255,255,0.2);
+        color: white;
+        padding: 10px 20px;
+        border-radius: 10px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        backdrop-filter: blur(10px);
+    }
+
+    .btn-refresh:hover, .btn-export:hover {
+        background: rgba(255,255,255,0.25);
+        color: white;
+        transform: translateY(-2px);
+    }
+
+    .admin-content {
+        background: #f8f9fc;
+        min-height: 100vh;
+        padding: 0;
+    }
+
+    /* === STATS CARDS === */
+    .stats-section {
+        padding: 0 0 30px 0;
+    }
+
+    .stats-card {
+        background: white;
+        border-radius: 20px;
+        padding: 25px;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+        transition: all 0.3s ease;
+        border: none;
+        height: 140px;
+    }
+
+    .stats-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+    }
+
+    .stats-content {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        position: relative;
+        z-index: 2;
+    }
+
+    .stats-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        color: white;
+    }
+
+    .stats-primary .stats-icon { background: linear-gradient(135deg, #667eea, #764ba2); }
+    .stats-success .stats-icon { background: linear-gradient(135deg, #56ab2f, #a8e6cf); }
+    .stats-warning .stats-icon { background: linear-gradient(135deg, #f093fb, #f5576c); }
+    .stats-info .stats-icon { background: linear-gradient(135deg, #4facfe, #00f2fe); }
+
+    .stats-number {
+        font-size: 2rem;
+        font-weight: 700;
+        margin: 0 0 5px 0;
+        color: #2d3748;
+    }
+
+    .stats-label {
+        color: #718096;
+        font-size: 0.9rem;
+        margin: 0 0 8px 0;
+        font-weight: 500;
+    }
+
+    .stats-trend {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        font-size: 0.8rem;
+        color: #48bb78;
+        font-weight: 500;
+    }
+
+    .stats-gradient {
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        opacity: 0.1;
+        transform: translate(30px, 30px);
+    }
+
+    .primary-gradient { background: linear-gradient(135deg, #667eea, #764ba2); }
+    .success-gradient { background: linear-gradient(135deg, #56ab2f, #a8e6cf); }
+    .warning-gradient { background: linear-gradient(135deg, #f093fb, #f5576c); }
+    .info-gradient { background: linear-gradient(135deg, #4facfe, #00f2fe); }
+
+    /* === ORDERS TABLE === */
+    .orders-section {
+        padding: 0;
+    }
+
+    .orders-card {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+        overflow: hidden;
+    }
+
+    .orders-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 25px 30px;
+    }
+
+    .header-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 20px;
+    }
+
+    .section-title {
+        font-size: 1.4rem;
+        font-weight: 600;
+        margin: 0;
+        display: flex;
+        align-items: center;
+    }
+
+    .header-filters {
+        display: flex;
+        gap: 15px;
+        align-items: center;
+    }
+
+    .filter-select, .filter-date {
+        background: rgba(255,255,255,0.15);
+        border: 1px solid rgba(255,255,255,0.2);
+        color: white;
+        border-radius: 8px;
+        padding: 8px 12px;
+        min-width: 150px;
+    }
+
+    .filter-select option {
+        color: #333;
+    }
+
+    .orders-content {
+        position: relative;
+    }
+
+    .table-container {
+        overflow-x: auto;
+    }
+
+    .orders-table {
+        margin: 0;
+        width: 100%;
+    }
+
+    .orders-table th {
+        background: #f8f9fc;
+        border: none;
+        padding: 20px 15px;
+        font-weight: 600;
+        color: #4a5568;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        position: sticky;
+        top: 0;
+        z-index: 10;
+    }
+
+    .orders-table td {
+        padding: 20px 15px;
+        border: none;
+        border-bottom: 1px solid #e2e8f0;
+        vertical-align: middle;
+    }
+
+    .order-row {
+        transition: all 0.3s ease;
+        position: relative;
+    }
+
+    .order-row:hover {
+        background: #f8f9fc;
+        transform: translateX(5px);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    }
+
+    /* Table Cell Styles */
+    .row-number {
+        width: 35px;
+        height: 35px;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        font-size: 0.9rem;
+    }
+
+    .order-info .order-id {
+        font-weight: 700;
+        color: #2d3748;
+        font-size: 1rem;
+        display: block;
+    }
+
+    .order-meta {
+        margin-top: 5px;
+    }
+
+    .items-count {
+        background: #e2e8f0;
+        color: #4a5568;
+        padding: 3px 8px;
+        border-radius: 15px;
+        font-size: 0.75rem;
+        font-weight: 500;
+    }
+
+    .customer-info {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .customer-avatar {
+        width: 45px;
+        height: 45px;
+        background: linear-gradient(135deg, #56ab2f, #a8e6cf);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 16px;
+    }
+
+    .customer-name {
+        font-weight: 600;
+        color: #2d3748;
+        font-size: 0.95rem;
+    }
+
+    .customer-email {
+        color: #718096;
+        font-size: 0.85rem;
+    }
+
+    .date-info .date-main {
+        font-weight: 600;
+        color: #2d3748;
+        font-size: 0.9rem;
+    }
+
+    .date-time {
+        color: #718096;
+        font-size: 0.8rem;
+        margin-top: 2px;
+    }
+
+    .amount-value {
+        font-weight: 700;
+        color: #38a169;
+        font-size: 1.1rem;
+    }
+
+    .address-info {
+        display: flex;
+        align-items: center;
+        color: #4a5568;
+        font-size: 0.9rem;
+    }
+
+    .address-text {
+        max-width: 200px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .items-badge .badge-items {
+        background: linear-gradient(135deg, #4facfe, #00f2fe);
+        color: white;
+        padding: 8px 12px;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 0.85rem;
+    }
+
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 8px 15px;
+        border-radius: 20px;
+        font-weight: 500;
+        font-size: 0.85rem;
+    }
+
+    .status-processing {
+        background: linear-gradient(135deg, #f093fb, #f5576c);
+        color: white;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 8px;
+        justify-content: center;
+    }
+
+    .action-btn {
+        width: 35px;
+        height: 35px;
+        border: none;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+        transition: all 0.3s ease;
+        text-decoration: none;
+    }
+
+    .btn-view {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+    }
+
+    .btn-edit {
+        background: linear-gradient(135deg, #56ab2f, #a8e6cf);
+        color: white;
+    }
+
+    .btn-delete {
+        background: linear-gradient(135deg, #f093fb, #f5576c);
+        color: white;
+    }
+
+    .action-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        color: white;
+    }
+
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 80px 20px;
+    }
+
+    .empty-icon {
+        font-size: 4rem;
+        color: #cbd5e0;
+        margin-bottom: 20px;
+    }
+
+    .empty-title {
+        color: #4a5568;
+        font-size: 1.5rem;
+        margin-bottom: 10px;
+    }
+
+    .empty-description {
+        color: #718096;
+        margin-bottom: 30px;
+    }    /* Responsive Design */
+    @@media (max-width: 768px) {
+        .admin-title {
+            font-size: 1.5rem;
+        }
+        
+        .header-content {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        
+        .admin-actions {
+            width: 100%;
+            justify-content: flex-end;
+        }
+        
+        .stats-card {
+            margin-bottom: 20px;
+        }
+        
+        .table-container {
+            overflow-x: scroll;
+        }
+        
+        .orders-table {
+            min-width: 800px;
+        }
+    }
+</style>
+
+<!-- Enhanced JavaScript with Modern Features -->
+<script>
+    // Initialize page
+    $(document).ready(function() {
+        initializeDataTable();
+        initializeFilters();
+        initializeAnimations();
+        initializeTooltips();
+    });
+
+    // Initialize DataTable with advanced features
+    function initializeDataTable() {
+        if ($.fn.DataTable.isDataTable('#ordersTable')) {
+            $('#ordersTable').DataTable().destroy();
+        }
+
+        $('#ordersTable').DataTable({
+            "responsive": true,
+            "lengthChange": true,
+            "autoWidth": false,
+            "pageLength": 25,
+            "order": [[3, "desc"]], // Sort by date desc
+            "dom": 'Bfrtip',
+            "buttons": [
+                {
+                    extend: 'excel',
+                    text: '<i class="fas fa-file-excel me-2"></i>Excel',
+                    className: 'btn btn-success btn-sm',
+                    title: 'Danh sách đơn hàng'
+                },
+                {
+                    extend: 'pdf',
+                    text: '<i class="fas fa-file-pdf me-2"></i>PDF',
+                    className: 'btn btn-danger btn-sm',
+                    title: 'Danh sách đơn hàng'
+                },
+                {
+                    text: '<i class="fas fa-sync-alt me-2"></i>Làm mới',
+                    className: 'btn btn-primary btn-sm',
+                    action: function() {
+                        refreshOrders();
+                    }
+                }
+            ],
+            "language": {
+                "lengthMenu": "Hiển thị _MENU_ đơn hàng",
+                "zeroRecords": "Không tìm thấy đơn hàng nào",
+                "info": "Hiển thị _START_ đến _END_ của _TOTAL_ đơn hàng",
+                "infoEmpty": "Hiển thị 0 đến 0 của 0 đơn hàng",
+                "infoFiltered": "(lọc từ _MAX_ tổng số đơn hàng)",
+                "search": "Tìm kiếm:",
+                "paginate": {
+                    "first": "Đầu",
+                    "last": "Cuối",
+                    "next": "Tiếp",
+                    "previous": "Trước"
+                }
+            },
+            "columnDefs": [
+                { "orderable": false, "targets": [0, 8] }, // Disable sorting for # and Actions columns
+                { "searchable": false, "targets": [0, 8] }
+            ]
+        });
+    }
+
+    // Initialize filters
+    function initializeFilters() {
+        $('#statusFilter').on('change', function() {
+            const selectedStatus = $(this).val();
+            filterByStatus(selectedStatus);
+        });
+
+        $('#dateFilter').on('change', function() {
+            const selectedDate = $(this).val();
+            filterByDate(selectedDate);
+        });
+    }
+
+    // Initialize animations
+    function initializeAnimations() {
+        // Add AOS animation library if available
+        if (typeof AOS !== 'undefined') {
+            AOS.init({
+                duration: 600,
+                easing: 'ease-in-out',
+                once: true
+            });
+        }
+
+        // Add custom animations for cards
+        $('.stats-card').each(function(index) {
+            $(this).css({
+                'animation-delay': (index * 100) + 'ms',
+                'animation': 'fadeInUp 0.8s ease-out forwards'
+            });
+        });
+    }
+
+    // Initialize tooltips
+    function initializeTooltips() {
+        $('[title]').tooltip({
+            placement: 'top',
+            trigger: 'hover'
+        });
+    }
+
+    // Filter functions
+    function filterByStatus(status) {
+        const table = $('#ordersTable').DataTable();
+        if (status === '') {
+            table.column(7).search('').draw();
+        } else {
+            table.column(7).search(status).draw();
+        }
+        showToast('success', `Đã lọc theo trạng thái: ${status || 'Tất cả'}`);
+    }
+
+    function filterByDate(date) {
+        const table = $('#ordersTable').DataTable();
+        if (date === '') {
+            table.column(3).search('').draw();
+        } else {
+            const formattedDate = new Date(date).toLocaleDateString('vi-VN');
+            table.column(3).search(formattedDate).draw();
+        }
+        showToast('success', `Đã lọc theo ngày: ${date || 'Tất cả'}`);
+    }
+
+    // Action functions
+    function refreshOrders() {
+        showToast('info', 'Đang làm mới dữ liệu...');
+        setTimeout(() => {
+            location.reload();
+        }, 500);
+    }
+
+    function exportOrders() {
+        showToast('info', 'Đang xuất dữ liệu...');
+        // Trigger DataTable export
+        $('#ordersTable').DataTable().button('.buttons-excel').trigger();
+    }
+
+    function editOrder(orderId) {
+        showToast('info', 'Tính năng chỉnh sửa đang được phát triển...');
+        // TODO: Implement edit functionality
+        console.log('Edit order:', orderId);
+    }
+
+    function deleteOrder(orderId) {
+        Swal.fire({
+            title: 'Xác nhận xóa',
+            text: 'Bạn có chắc chắn muốn xóa đơn hàng này?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Xóa',
+            cancelButtonText: 'Hủy',
+            customClass: {
+                popup: 'swal-modern'
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                performDeleteOrder(orderId);
+            }
+        });
+    }
+
+    function performDeleteOrder(orderId) {
+        $.ajax({
+            url: '@Url.Action("Delete")',
+            type: 'POST',
+            data: { id: orderId },
+            beforeSend: function() {
+                showLoadingOverlay();
+            },
+            success: function(response) {
+                hideLoadingOverlay();
+                if (response.success) {
+                    showToast('success', 'Xóa đơn hàng thành công!');
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1500);
+                } else {
+                    showToast('error', response.message || 'Có lỗi xảy ra khi xóa đơn hàng!');
+                }
+            },
+            error: function(xhr, status, error) {
+                hideLoadingOverlay();
+                showToast('error', 'Có lỗi xảy ra khi xóa đơn hàng!');
+                console.error('Delete error:', error);
+            }
+        });
+    }
+
+    // Utility functions
+    function showToast(type, message) {
+        if (typeof toastr !== 'undefined') {
+            toastr.options = {
+                "closeButton": true,
+                "debug": false,
+                "newestOnTop": true,
+                "progressBar": true,
+                "positionClass": "toast-top-right",
+                "preventDuplicates": false,
+                "onclick": null,
+                "showDuration": "300",
+                "hideDuration": "1000",
+                "timeOut": "5000",
+                "extendedTimeOut": "1000",
+                "showEasing": "swing",
+                "hideEasing": "linear",
+                "showMethod": "fadeIn",
+                "hideMethod": "fadeOut"
+            };
+            toastr[type](message);
+        } else {
+            alert(message);
+        }
+    }
+
+    function showLoadingOverlay() {
+        $('body').append('<div class="loading-overlay"><div class="loading-spinner"><i class="fas fa-spinner fa-spin"></i><p>Đang xử lý...</p></div></div>');
+    }
+
+    function hideLoadingOverlay() {
+        $('.loading-overlay').remove();
+    }
+
+    // Real-time updates (WebSocket or polling)
+    function initializeRealTimeUpdates() {
+        // TODO: Implement real-time updates
+        setInterval(() => {
+            // Check for new orders
+            // updateOrderCount();
+        }, 30000); // Check every 30 seconds
+    }
+
+    // Keyboard shortcuts
+    $(document).keydown(function(e) {
+        if (e.ctrlKey) {
+            switch(e.keyCode) {
+                case 82: // Ctrl+R - Refresh
+                    e.preventDefault();
+                    refreshOrders();
+                    break;
+                case 69: // Ctrl+E - Export
+                    e.preventDefault();
+                    exportOrders();
+                    break;
+            }
+        }
+    });
+</script>
+
+<!-- Additional CSS for loading overlay -->
+<style>
+    .loading-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.7);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+    }
+
+    .loading-spinner {
+        background: white;
+        padding: 30px;
+        border-radius: 15px;
+        text-align: center;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    }
+
+    .loading-spinner i {
+        font-size: 2rem;
+        color: #667eea;
+        margin-bottom: 15px;
+    }
+
+    .loading-spinner p {
+        margin: 0;
+        color: #4a5568;
+        font-weight: 500;
+    }
+
+    .swal-modern {
+        border-radius: 15px !important;
+    }    @@keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+</style>

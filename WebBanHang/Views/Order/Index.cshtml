@@ -1,0 +1,579 @@
+@model IEnumerable<WebBanHang.Models.Order>
+
+@{
+    ViewData["Title"] = "Đơn hàng của tôi";
+}
+
+<div class="orders-container">
+    <!-- Header Section -->
+    <div class="orders-header">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-8">
+                    <div class="page-title">
+                        <h1><i class="fas fa-shopping-bag"></i> Đơn hàng của tôi</h1>
+                        <p class="subtitle">Theo dõi và quản lý tất cả đơn hàng của bạn</p>
+                    </div>
+                </div>
+                <div class="col-lg-4 text-end">
+                    <a href="@Url.Action("Index", "Home")" class="btn btn-outline-primary">
+                        <i class="fas fa-plus-circle me-2"></i>Tiếp tục mua sắm
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container py-4">
+        @if (Model != null && Model.Any())
+        {
+            <!-- Stats Cards -->
+            <div class="row mb-4">
+                <div class="col-md-3">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-shopping-cart"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3>@Model.Count()</h3>
+                            <p>Tổng đơn hàng</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-card">
+                        <div class="stat-icon success">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3>@Model.Count()</h3>
+                            <p>Đơn thành công</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-card">
+                        <div class="stat-icon warning">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3>0</h3>
+                            <p>Đang xử lý</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-card">
+                        <div class="stat-icon primary">
+                            <i class="fas fa-dollar-sign"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3>@Model.Sum(o => o.TotalPrice).ToString("C0", new System.Globalization.CultureInfo("vi-VN"))</h3>
+                            <p>Tổng chi tiêu</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Orders Grid -->
+            <div class="orders-grid">
+                @foreach (var order in Model)
+                {
+                    <div class="order-card">
+                        <div class="order-header">
+                            <div class="order-info">
+                                <span class="order-id">#@order.Id</span>
+                                <span class="order-date">@order.OrderDate.ToString("dd/MM/yyyy HH:mm")</span>
+                            </div>
+                            <div class="order-status">
+                                <span class="status-badge success">Hoàn thành</span>
+                            </div>
+                        </div>
+
+                        <div class="order-body">
+                            <div class="order-summary">
+                                <div class="products-preview">
+                                    @if (order.OrderDetails.Any())
+                                    {
+                                        @foreach (var detail in order.OrderDetails.Take(3))
+                                        {
+                                            <div class="product-item">
+                                                @if (!string.IsNullOrEmpty(detail.Product?.ImageUrl))
+                                                {
+                                                    <img src="@detail.Product.ImageUrl" alt="@detail.Product?.Name" class="product-image">
+                                                }
+                                                else
+                                                {
+                                                    <div class="product-placeholder">
+                                                        <i class="fas fa-image"></i>
+                                                    </div>
+                                                }
+                                                <div class="product-details">
+                                                    <h6>@detail.Product?.Name</h6>
+                                                    <span>x@detail.Quantity</span>
+                                                </div>
+                                            </div>
+                                        }
+                                        @if (order.OrderDetails.Count() > 3)
+                                        {
+                                            <div class="more-items">
+                                                <span>+@(order.OrderDetails.Count() - 3) sản phẩm khác</span>
+                                            </div>
+                                        }
+                                    }
+                                </div>
+                            </div>
+
+                            <div class="order-details">
+                                <div class="detail-row">
+                                    <span class="label">Địa chỉ giao hàng:</span>
+                                    <span class="value">@order.ShippingAddress</span>
+                                </div>
+                                <div class="detail-row">
+                                    <span class="label">Tổng số lượng:</span>
+                                    <span class="value">@order.OrderDetails.Sum(od => od.Quantity) sản phẩm</span>
+                                </div>
+                                <div class="detail-row total">
+                                    <span class="label">Tổng tiền:</span>
+                                    <span class="value price">@order.TotalPrice.ToString("C0", new System.Globalization.CultureInfo("vi-VN"))</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="order-footer">
+                            <div class="order-actions">
+                                <a href="@Url.Action("Details", new { id = order.Id })" class="btn btn-primary">
+                                    <i class="fas fa-eye me-2"></i>Xem chi tiết
+                                </a>
+                                <button class="btn btn-outline-secondary" onclick="reorder(@order.Id)">
+                                    <i class="fas fa-redo me-2"></i>Đặt lại
+                                </button>
+                                <button class="btn btn-outline-info" onclick="downloadInvoice(@order.Id)">
+                                    <i class="fas fa-download me-2"></i>Tải hóa đơn
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+
+            <!-- Pagination -->
+            <div class="pagination-wrapper">
+                <nav aria-label="Orders pagination">
+                    <ul class="pagination justify-content-center">
+                        <li class="page-item disabled">
+                            <span class="page-link">Trước</span>
+                        </li>
+                        <li class="page-item active">
+                            <span class="page-link">1</span>
+                        </li>
+                        <li class="page-item disabled">
+                            <span class="page-link">Sau</span>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        }
+        else
+        {
+            <!-- Empty State -->
+            <div class="empty-state">
+                <div class="empty-icon">
+                    <i class="fas fa-shopping-bag"></i>
+                </div>
+                <h3>Chưa có đơn hàng nào</h3>
+                <p>Bạn chưa thực hiện đơn hàng nào. Hãy khám phá các sản phẩm tuyệt vời của chúng tôi!</p>
+                <a href="@Url.Action("Index", "Home")" class="btn btn-primary btn-lg">
+                    <i class="fas fa-shopping-cart me-2"></i>Bắt đầu mua sắm
+                </a>
+            </div>
+        }
+    </div>
+</div>
+
+<style>
+    .orders-container {
+        background: linear-gradient(135deg, #f5f7ff 0%, #f8f9ff 100%);
+        min-height: 100vh;
+        padding-bottom: 50px;
+    }
+
+    .orders-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 60px 0 40px;
+        margin-bottom: 0;
+    }
+
+    .page-title h1 {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 10px;
+    }
+
+    .subtitle {
+        font-size: 1.1rem;
+        opacity: 0.9;
+        margin: 0;
+    }
+
+    /* Stats Cards */
+    .stat-card {
+        background: white;
+        border-radius: 15px;
+        padding: 25px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        border: none;
+        transition: all 0.3s ease;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+    }
+
+    .stat-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 20px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        font-size: 24px;
+    }
+
+    .stat-icon.success {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    }
+
+    .stat-icon.warning {
+        background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);
+    }
+
+    .stat-icon.primary {
+        background: linear-gradient(135deg, #007bff 0%, #6610f2 100%);
+    }
+
+    .stat-content h3 {
+        font-size: 2rem;
+        font-weight: 700;
+        margin: 0;
+        color: #2c3e50;
+    }
+
+    .stat-content p {
+        margin: 0;
+        color: #6c757d;
+        font-weight: 500;
+    }
+
+    /* Order Cards */
+    .orders-grid {
+        display: grid;
+        gap: 25px;
+    }
+
+    .order-card {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 15px 35px rgba(0,0,0,0.08);
+        border: 1px solid #f1f3f4;
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+
+    .order-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 25px 50px rgba(0,0,0,0.15);
+    }
+
+    .order-header {
+        padding: 25px;
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border-bottom: 1px solid #eee;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .order-id {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #495057;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .order-date {
+        color: #6c757d;
+        font-size: 0.9rem;
+        margin-left: 15px;
+    }
+
+    .status-badge {
+        padding: 8px 16px;
+        border-radius: 25px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .status-badge.success {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        color: white;
+    }
+
+    .order-body {
+        padding: 30px;
+    }
+
+    .products-preview {
+        margin-bottom: 25px;
+    }
+
+    .product-item {
+        display: flex;
+        align-items: center;
+        padding: 15px 0;
+        border-bottom: 1px solid #f8f9fa;
+    }
+
+    .product-item:last-child {
+        border-bottom: none;
+    }
+
+    .product-image {
+        width: 50px;
+        height: 50px;
+        border-radius: 10px;
+        object-fit: cover;
+        margin-right: 15px;
+    }
+
+    .product-placeholder {
+        width: 50px;
+        height: 50px;
+        border-radius: 10px;
+        background: #f8f9fa;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #6c757d;
+        margin-right: 15px;
+    }
+
+    .product-details h6 {
+        margin: 0;
+        font-weight: 600;
+        color: #495057;
+        font-size: 0.95rem;
+    }
+
+    .product-details span {
+        color: #6c757d;
+        font-size: 0.85rem;
+    }
+
+    .more-items {
+        padding: 10px 0;
+        text-align: center;
+        color: #6c757d;
+        font-style: italic;
+    }
+
+    .order-details {
+        background: #f8f9fa;
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+
+    .detail-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 8px 0;
+        border-bottom: 1px solid #eee;
+    }
+
+    .detail-row:last-child {
+        border-bottom: none;
+    }
+
+    .detail-row.total {
+        font-weight: 700;
+        font-size: 1.1rem;
+        margin-top: 10px;
+        padding-top: 15px;
+        border-top: 2px solid #dee2e6;
+    }
+
+    .detail-row .label {
+        color: #6c757d;
+        font-weight: 500;
+    }
+
+    .detail-row .value.price {
+        color: #28a745;
+        font-weight: 700;
+        font-size: 1.2rem;
+    }
+
+    .order-footer {
+        padding: 25px;
+        background: #f8f9fa;
+        border-top: 1px solid #eee;
+    }
+
+    .order-actions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .order-actions .btn {
+        border-radius: 25px;
+        font-weight: 600;
+        padding: 8px 20px;
+        transition: all 0.3s ease;
+    }
+
+    .order-actions .btn:hover {
+        transform: translateY(-2px);
+    }
+
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 80px 20px;
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 15px 35px rgba(0,0,0,0.08);
+        margin: 40px auto;
+        max-width: 500px;
+    }
+
+    .empty-icon {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        font-size: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 30px;
+    }
+
+    .empty-state h3 {
+        color: #495057;
+        margin-bottom: 15px;
+        font-weight: 700;
+    }
+
+    .empty-state p {
+        color: #6c757d;
+        margin-bottom: 30px;
+        line-height: 1.6;
+    }
+
+    /* Pagination */
+    .pagination-wrapper {
+        margin-top: 40px;
+    }
+
+    .pagination .page-link {
+        border-radius: 25px;
+        margin: 0 5px;
+        border: none;
+        background: white;
+        color: #667eea;
+        font-weight: 600;
+        padding: 10px 15px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+    }
+
+    .pagination .page-item.active .page-link {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+    }    /* Responsive */
+    @@media (max-width: 768px) {
+        .orders-header {
+            padding: 40px 0 30px;
+        }
+
+        .page-title h1 {
+            font-size: 2rem;
+        }
+
+        .order-header {
+            flex-direction: column;
+            gap: 15px;
+            text-align: center;
+        }
+
+        .order-actions {
+            justify-content: center;
+        }
+
+        .stat-card {
+            margin-bottom: 15px;
+        }
+    }
+</style>
+
+<script>
+    function reorder(orderId) {
+        if (confirm('Bạn có muốn đặt lại đơn hàng này không?')) {
+            // Implement reorder logic
+            console.log('Reorder:', orderId);
+            alert('Tính năng đang được phát triển!');
+        }
+    }
+
+    function downloadInvoice(orderId) {
+        // Implement download invoice logic
+        console.log('Download invoice:', orderId);
+        alert('Tính năng tải hóa đơn đang được phát triển!');
+    }
+
+    // Add animation on scroll
+    window.addEventListener('scroll', function() {
+        const cards = document.querySelectorAll('.order-card');
+        cards.forEach(card => {
+            const cardTop = card.getBoundingClientRect().top;
+            const cardVisible = 150;
+            
+            if (cardTop < window.innerHeight - cardVisible) {
+                card.style.opacity = '1';
+                card.style.transform = 'translateY(0)';
+            }
+        });
+    });
+
+    // Initialize cards animation
+    document.addEventListener('DOMContentLoaded', function() {
+        const cards = document.querySelectorAll('.order-card');
+        cards.forEach((card, index) => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(30px)';
+            card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+            
+            setTimeout(() => {
+                card.style.opacity = '1';
+                card.style.transform = 'translateY(0)';
+            }, index * 100);
+        });
+    });
+</script>

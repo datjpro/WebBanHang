@@ -1,0 +1,577 @@
+@model UserRoleViewModel
+@{
+    ViewData["Title"] = "Chi tiết người dùng";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<!-- Page Header -->
+<div class="page-header">
+    <div class="page-header-content">
+        <div class="page-title">
+            <div class="page-title-icon">
+                <i class="fas fa-user"></i>
+            </div>
+            <div class="page-title-text">
+                <h1>Chi tiết người dùng</h1>
+                <p>Thông tin chi tiết của @Model.User.FirstName @Model.User.LastName</p>
+            </div>
+        </div>
+        <div class="page-actions">
+            <a href="@Url.Action("ManageRoles", "User", new { area = "Admin", userId = Model.User.Id })" class="btn btn-primary">
+                <i class="fas fa-user-cog me-2"></i>
+                Quản lý vai trò
+            </a>
+            <a href="@Url.Action("Index", "User", new { area = "Admin" })" class="btn btn-outline-primary">
+                <i class="fas fa-arrow-left me-2"></i>
+                Quay lại
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- User Profile Card -->
+    <div class="col-lg-4">
+        <div class="content-card">
+            <div class="user-profile-header">
+                <div class="user-avatar-large">
+                    <i class="fas fa-user"></i>
+                </div>
+                <div class="user-profile-info">
+                    <h3>@Model.User.FirstName @Model.User.LastName</h3>
+                    <div class="user-status">
+                        @if (Model.User.LockoutEnd != null && Model.User.LockoutEnd > DateTimeOffset.UtcNow)
+                        {
+                            <span class="status-badge status-locked">
+                                <i class="fas fa-lock me-1"></i>
+                                Đã khóa
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="status-badge status-active">
+                                <i class="fas fa-check-circle me-1"></i>
+                                Hoạt động
+                            </span>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <div class="user-roles-section">
+                <h5>
+                    <i class="fas fa-shield-alt me-2"></i>
+                    Vai trò trong hệ thống
+                </h5>
+                <div class="roles-display">
+                    @if (Model.Roles.Any())
+                    {
+                        @foreach (var role in Model.Roles)
+                        {
+                            <div class="role-item role-@role.ToLower()">
+                                <div class="role-icon">
+                                    <i class="fas @(role == "Admin" ? "fa-crown" : 
+                                                  role == "Company" ? "fa-building" : 
+                                                  role == "Employee" ? "fa-user-tie" : "fa-user")"></i>
+                                </div>
+                                <div class="role-info">
+                                    <div class="role-name">@role</div>
+                                    <div class="role-description">
+                                        @(role == "Admin" ? "Quản trị viên hệ thống" : 
+                                          role == "Company" ? "Tài khoản công ty" : 
+                                          role == "Employee" ? "Nhân viên hỗ trợ" : "Khách hàng")
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <div class="no-roles">
+                            <i class="fas fa-exclamation-circle me-2"></i>
+                            Chưa được phân quyền vai trò nào
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <div class="user-actions">
+                @if (Model.User.LockoutEnd != null && Model.User.LockoutEnd > DateTimeOffset.UtcNow)
+                {
+                    <button class="btn btn-success btn-action" onclick="unlockUser('@Model.User.Id', '@Model.User.FirstName @Model.User.LastName')">
+                        <i class="fas fa-unlock me-2"></i>
+                        Mở khóa tài khoản
+                    </button>
+                }
+                else
+                {
+                    <button class="btn btn-danger btn-action" onclick="lockUser('@Model.User.Id', '@Model.User.FirstName @Model.User.LastName')">
+                        <i class="fas fa-lock me-2"></i>
+                        Khóa tài khoản
+                    </button>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- User Information Details -->
+    <div class="col-lg-8">
+        <div class="content-card">
+            <div class="content-header">
+                <div class="content-title">
+                    <i class="fas fa-info-circle me-2"></i>
+                    Thông tin chi tiết
+                </div>
+            </div>
+            
+            <div class="info-grid">
+                <div class="info-section">
+                    <h6>Thông tin liên hệ</h6>
+                    <div class="info-items">
+                        <div class="info-item">
+                            <div class="info-label">
+                                <i class="fas fa-envelope me-2"></i>
+                                Email
+                            </div>
+                            <div class="info-value">
+                                @Model.User.Email
+                                @if (Model.User.EmailConfirmed)
+                                {
+                                    <span class="verified-badge">
+                                        <i class="fas fa-check-circle me-1"></i>
+                                        Đã xác thực
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="unverified-badge">
+                                        <i class="fas fa-exclamation-circle me-1"></i>
+                                        Chưa xác thực
+                                    </span>
+                                }
+                            </div>
+                        </div>
+                        
+                        <div class="info-item">
+                            <div class="info-label">
+                                <i class="fas fa-phone me-2"></i>
+                                Số điện thoại
+                            </div>
+                            <div class="info-value">
+                                @if (!string.IsNullOrEmpty(Model.User.PhoneNumber))
+                                {
+                                    @Model.User.PhoneNumber
+                                    @if (Model.User.PhoneNumberConfirmed)
+                                    {
+                                        <span class="verified-badge">
+                                            <i class="fas fa-check-circle me-1"></i>
+                                            Đã xác thực
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="unverified-badge">
+                                            <i class="fas fa-exclamation-circle me-1"></i>
+                                            Chưa xác thực
+                                        </span>
+                                    }
+                                }
+                                else
+                                {
+                                    <span class="text-muted">Chưa cung cấp</span>
+                                }
+                            </div>
+                        </div>
+                        
+                        <div class="info-item">
+                            <div class="info-label">
+                                <i class="fas fa-map-marker-alt me-2"></i>
+                                Địa chỉ
+                            </div>
+                            <div class="info-value">
+                                @if (!string.IsNullOrEmpty(Model.User.Address))
+                                {
+                                    @Model.User.Address
+                                }
+                                else
+                                {
+                                    <span class="text-muted">Chưa cung cấp</span>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="info-section">
+                    <h6>Thông tin tài khoản</h6>
+                    <div class="info-items">
+                        <div class="info-item">
+                            <div class="info-label">
+                                <i class="fas fa-key me-2"></i>
+                                ID người dùng
+                            </div>
+                            <div class="info-value">
+                                <code>@Model.User.Id</code>
+                            </div>
+                        </div>
+                        
+                        <div class="info-item">
+                            <div class="info-label">
+                                <i class="fas fa-user-shield me-2"></i>
+                                Tên đăng nhập
+                            </div>
+                            <div class="info-value">
+                                @Model.User.UserName
+                            </div>
+                        </div>
+                        
+                        <div class="info-item">
+                            <div class="info-label">
+                                <i class="fas fa-shield-alt me-2"></i>
+                                Xác thực 2 yếu tố
+                            </div>
+                            <div class="info-value">
+                                @if (Model.User.TwoFactorEnabled)
+                                {
+                                    <span class="verified-badge">
+                                        <i class="fas fa-check-circle me-1"></i>
+                                        Đã bật
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="unverified-badge">
+                                        <i class="fas fa-times-circle me-1"></i>
+                                        Chưa bật
+                                    </span>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="info-section">
+                    <h6>Thông tin trạng thái</h6>
+                    <div class="info-items">
+                        @if (Model.User.LockoutEnd != null && Model.User.LockoutEnd > DateTimeOffset.UtcNow)
+                        {
+                            <div class="info-item">
+                                <div class="info-label">
+                                    <i class="fas fa-lock me-2"></i>
+                                    Thời gian khóa
+                                </div>
+                                <div class="info-value">
+                                    <span class="text-danger">
+                                        Đến @Model.User.LockoutEnd?.ToString("dd/MM/yyyy HH:mm")
+                                    </span>
+                                </div>
+                            </div>
+                        }
+                        
+                        <div class="info-item">
+                            <div class="info-label">
+                                <i class="fas fa-calendar-plus me-2"></i>
+                                Ngày tạo tài khoản
+                            </div>
+                            <div class="info-value">
+                                Ước tính từ ID
+                            </div>
+                        </div>
+                        
+                        <div class="info-item">
+                            <div class="info-label">
+                                <i class="fas fa-sign-in-alt me-2"></i>
+                                Lần đăng nhập cuối
+                            </div>
+                            <div class="info-value">
+                                <span class="text-muted">Không có thông tin</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Action Forms -->
+<form id="lockUserForm" method="post" action="@Url.Action("LockUser", "User", new { area = "Admin" })" style="display: none;">
+    <input type="hidden" name="userId" id="lockUserId" />
+</form>
+
+<form id="unlockUserForm" method="post" action="@Url.Action("UnlockUser", "User", new { area = "Admin" })" style="display: none;">
+    <input type="hidden" name="userId" id="unlockUserId" />
+</form>
+
+<style>
+.user-profile-header {
+    text-align: center;
+    padding: 30px 20px;
+    border-bottom: 1px solid #eee;
+    margin-bottom: 25px;
+}
+
+.user-avatar-large {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 15px;
+    color: white;
+    font-size: 32px;
+    box-shadow: 0 8px 32px rgba(102, 126, 234, 0.3);
+}
+
+.user-profile-info h3 {
+    margin: 0 0 10px 0;
+    color: #2c3e50;
+    font-weight: 600;
+    font-size: 24px;
+}
+
+.user-roles-section {
+    margin-bottom: 25px;
+    padding-bottom: 25px;
+    border-bottom: 1px solid #eee;
+}
+
+.user-roles-section h5 {
+    color: #2c3e50;
+    font-weight: 600;
+    margin-bottom: 15px;
+}
+
+.role-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 15px;
+    border-radius: 12px;
+    margin-bottom: 10px;
+    background: white;
+    border: 2px solid #e9ecef;
+    transition: all 0.3s ease;
+}
+
+.role-admin {
+    border-color: #e74c3c;
+    background: linear-gradient(135deg, #fdf2f2, #fce4e4);
+}
+
+.role-company {
+    border-color: #f39c12;
+    background: linear-gradient(135deg, #fef9f2, #fef3e2);
+}
+
+.role-employee {
+    border-color: #3498db;
+    background: linear-gradient(135deg, #f2f8fd, #e3f2fd);
+}
+
+.role-customer {
+    border-color: #2ecc71;
+    background: linear-gradient(135deg, #f2fdf6, #e8f8f0);
+}
+
+.role-icon {
+    width: 45px;
+    height: 45px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    color: white;
+}
+
+.role-admin .role-icon {
+    background: linear-gradient(135deg, #e74c3c, #c0392b);
+}
+
+.role-company .role-icon {
+    background: linear-gradient(135deg, #f39c12, #d68910);
+}
+
+.role-employee .role-icon {
+    background: linear-gradient(135deg, #3498db, #2980b9);
+}
+
+.role-customer .role-icon {
+    background: linear-gradient(135deg, #2ecc71, #27ae60);
+}
+
+.role-name {
+    font-size: 16px;
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 2px;
+}
+
+.role-description {
+    font-size: 13px;
+    color: #7f8c8d;
+}
+
+.no-roles {
+    text-align: center;
+    padding: 20px;
+    color: #7f8c8d;
+    font-style: italic;
+}
+
+.user-actions {
+    text-align: center;
+}
+
+.btn-action {
+    width: 100%;
+    padding: 12px 20px;
+    font-weight: 500;
+    border-radius: 8px;
+}
+
+.info-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+.info-section h6 {
+    color: #2c3e50;
+    font-weight: 600;
+    margin-bottom: 15px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #667eea;
+    display: inline-block;
+}
+
+.info-items {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.info-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border-left: 4px solid #667eea;
+}
+
+.info-label {
+    font-weight: 500;
+    color: #2c3e50;
+    min-width: 150px;
+}
+
+.info-value {
+    text-align: right;
+    flex: 1;
+    margin-left: 15px;
+}
+
+.info-value code {
+    background: #e9ecef;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+}
+
+.verified-badge {
+    display: inline-flex;
+    align-items: center;
+    background: linear-gradient(135deg, #2ecc71, #27ae60);
+    color: white;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 500;
+    margin-left: 8px;
+}
+
+.unverified-badge {
+    display: inline-flex;
+    align-items: center;
+    background: linear-gradient(135deg, #e74c3c, #c0392b);
+    color: white;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 500;
+    margin-left: 8px;
+}
+
+@@media (max-width: 768px) {
+    .info-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+    
+    .info-value {
+        text-align: left;
+        margin-left: 0;
+    }
+    
+    .info-label {
+        min-width: auto;
+    }
+}
+</style>
+
+<script>
+function lockUser(userId, userName) {
+    Swal.fire({
+        title: 'Xác nhận khóa tài khoản',
+        text: `Bạn có chắc muốn khóa tài khoản "${userName}"?`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#e74c3c',
+        cancelButtonColor: '#95a5a6',
+        confirmButtonText: 'Khóa tài khoản',
+        cancelButtonText: 'Hủy bỏ'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            $('#lockUserId').val(userId);
+            $('#lockUserForm').submit();
+        }
+    });
+}
+
+function unlockUser(userId, userName) {
+    Swal.fire({
+        title: 'Xác nhận mở khóa',
+        text: `Bạn có chắc muốn mở khóa tài khoản "${userName}"?`,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#2ecc71',
+        cancelButtonColor: '#95a5a6',
+        confirmButtonText: 'Mở khóa',
+        cancelButtonText: 'Hủy bỏ'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            $('#unlockUserId').val(userId);
+            $('#unlockUserForm').submit();
+        }
+    });
+}
+
+// Show success message if exists
+@if (TempData["Success"] != null)
+{
+    <text>
+    toastr.success('@TempData["Success"]', 'Thành công!', {
+        "closeButton": true,
+        "progressBar": true,
+        "positionClass": "toast-top-right",
+        "timeOut": "3000"
+    });
+    </text>
+}
+</script>

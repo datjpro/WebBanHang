@@ -28,6 +28,12 @@
                     Quản lý tài khoản
                 </a>
             </li>
+            <li>
+                <a class="dropdown-item luxury-dropdown-item" asp-controller="Order" asp-action="Index">
+                    <i class="fas fa-shopping-bag me-2"></i>
+                    Đơn hàng của tôi
+                </a>
+            </li>
             <li><hr class="dropdown-divider"></li>
             <li>
                 <form id="logoutForm" class="d-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">

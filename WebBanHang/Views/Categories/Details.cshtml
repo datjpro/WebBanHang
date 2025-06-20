@@ -1,4 +1,5 @@
 @model Category
+@using WebBanHang.Models
 
 @{
     ViewData["Title"] = "Chi tiết danh mục";
@@ -57,14 +58,16 @@
                             }
                         </div>
                     }
-                    
-                    <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-3">
+                      <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-3">
                         <a asp-action="Index" class="btn btn-secondary me-md-2">
                             <i class="fas fa-arrow-left"></i> Quay lại
                         </a>
-                        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning me-md-2">
-                            <i class="fas fa-edit"></i> Chỉnh sửa
-                        </a>
+                        @if (User.IsInRole(SD.Role_Admin))
+                        {
+                            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning me-md-2">
+                                <i class="fas fa-edit"></i> Chỉnh sửa
+                            </a>
+                        }
                         <a asp-controller="Products" asp-action="Index" asp-route-categoryId="@Model.Id" class="btn btn-primary">
                             <i class="fas fa-eye"></i> Xem tất cả sản phẩm
                         </a>

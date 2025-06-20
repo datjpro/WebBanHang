@@ -1,4 +1,5 @@
 @model IEnumerable<Category>
+@using WebBanHang.Models
 
 @{
     ViewData["Title"] = "Quản lý danh mục";
@@ -12,11 +13,13 @@
                 <i class="fas fa-tag me-2 text-primary"></i>@ViewData["Title"]
             </h2>
             <p class="text-muted mt-2">Quản lý tất cả danh mục sản phẩm trong cửa hàng</p>
-        </div>
-        <div class="col-md-4 text-md-end d-flex align-items-center justify-content-md-end">
-            <a asp-action="Create" class="btn btn-primary px-4">
-                <i class="fas fa-plus-circle me-2"></i> Thêm danh mục mới
-            </a>
+        </div>        <div class="col-md-4 text-md-end d-flex align-items-center justify-content-md-end">
+            @if (User.IsInRole(SD.Role_Admin))
+            {
+                <a asp-action="Create" class="btn btn-primary px-4">
+                    <i class="fas fa-plus-circle me-2"></i> Thêm danh mục mới
+                </a>
+            }
         </div>
     </div>
 
@@ -63,19 +66,27 @@
                                                         @(item.Products != null ? item.Products.Count : 0) sản phẩm
                                                     </span>
                                                 </div>
-                                            </td>
-                                            <td class="px-4 py-3 text-end">
-                                                <div class="btn-group" role="group">
+                                            </td>                                            <td class="px-4 py-3 text-end">
+                                                @if (User.IsInRole(SD.Role_Admin))
+                                                {
+                                                    <div class="btn-group" role="group">
+                                                        <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-outline-primary btn-sm">
+                                                            <i class="fas fa-eye me-1"></i> Chi tiết
+                                                        </a>
+                                                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-outline-warning btn-sm">
+                                                            <i class="fas fa-pen me-1"></i> Sửa
+                                                        </a>
+                                                        <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-outline-danger btn-sm">
+                                                            <i class="fas fa-trash me-1"></i> Xóa
+                                                        </a>
+                                                    </div>
+                                                }
+                                                else
+                                                {
                                                     <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-outline-primary btn-sm">
                                                         <i class="fas fa-eye me-1"></i> Chi tiết
                                                     </a>
-                                                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-outline-warning btn-sm">
-                                                        <i class="fas fa-pen me-1"></i> Sửa
-                                                    </a>
-                                                    <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-outline-danger btn-sm">
-                                                        <i class="fas fa-trash me-1"></i> Xóa
-                                                    </a>
-                                                </div>
+                                                }
                                             </td>
                                         </tr>
                                     }
@@ -95,11 +106,13 @@
                     <div class="d-inline-flex justify-content-center align-items-center mb-4 bg-soft-primary p-4 rounded-circle">
                         <i class="fas fa-folder-open fa-3x text-primary"></i>
                     </div>
-                    <h4 class="fw-bold mb-3">Chưa có danh mục nào</h4>
-                    <p class="text-muted mb-4">Bạn chưa có danh mục nào. Hãy tạo danh mục đầu tiên để bắt đầu quản lý sản phẩm.</p>
-                    <a asp-action="Create" class="btn btn-primary px-4 py-2">
-                        <i class="fas fa-plus-circle me-2"></i> Tạo danh mục đầu tiên
-                    </a>
+                    <h4 class="fw-bold mb-3">Chưa có danh mục nào</h4>                    <p class="text-muted mb-4">Bạn chưa có danh mục nào. Hãy tạo danh mục đầu tiên để bắt đầu quản lý sản phẩm.</p>
+                    @if (User.IsInRole(SD.Role_Admin))
+                    {
+                        <a asp-action="Create" class="btn btn-primary px-4 py-2">
+                            <i class="fas fa-plus-circle me-2"></i> Tạo danh mục đầu tiên
+                        </a>
+                    }
                 </div>
             </div>
         </div>

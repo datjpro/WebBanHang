@@ -1,4 +1,5 @@
 @model IEnumerable<Product>
+@using WebBanHang.Models
 
 @{
     ViewData["Title"] = "Sản phẩm";
@@ -13,12 +14,14 @@
                 <div class="col-lg-8">
                     <h1 class="page-title">Bộ sưu tập sản phẩm</h1>
                     <p class="page-subtitle">Khám phá những sản phẩm cao cấp được tuyển chọn kỹ lưỡng</p>
-                </div>
-                <div class="col-lg-4 text-lg-end">
-                    <a asp-action="Create" class="btn luxury-btn luxury-btn-primary">
-                        <i class="fas fa-plus"></i>
-                        <span>Thêm sản phẩm mới</span>
-                    </a>
+                </div>                <div class="col-lg-4 text-lg-end">
+                    @if (User.IsInRole(SD.Role_Admin))
+                    {
+                        <a asp-action="Create" class="btn luxury-btn luxury-btn-primary">
+                            <i class="fas fa-plus"></i>
+                            <span>Thêm sản phẩm mới</span>
+                        </a>
+                    }
                 </div>
             </div>
         </div>
@@ -239,20 +242,22 @@
                                                     <i class="fas fa-star"></i>
                                                     <i class="fas fa-star"></i>
                                                     <span class="rating-text">(5.0)</span>
+                                                </div>                                            </div>
+                                            @if (User.IsInRole(SD.Role_Admin))
+                                            {
+                                                <div class="product-admin-actions">
+                                                    <a asp-action="Edit" asp-route-id="@item.Id" 
+                                                       class="admin-btn edit-btn">
+                                                        <i class="fas fa-edit"></i>
+                                                        <span>Sửa</span>
+                                                    </a>
+                                                    <a asp-action="Delete" asp-route-id="@item.Id" 
+                                                       class="admin-btn delete-btn">
+                                                        <i class="fas fa-trash"></i>
+                                                        <span>Xóa</span>
+                                                    </a>
                                                 </div>
-                                            </div>
-                                            <div class="product-admin-actions">
-                                                <a asp-action="Edit" asp-route-id="@item.Id" 
-                                                   class="admin-btn edit-btn">
-                                                    <i class="fas fa-edit"></i>
-                                                    <span>Sửa</span>
-                                                </a>
-                                                <a asp-action="Delete" asp-route-id="@item.Id" 
-                                                   class="admin-btn delete-btn">
-                                                    <i class="fas fa-trash"></i>
-                                                    <span>Xóa</span>
-                                                </a>
-                                            </div>                                        </div>
+                                            }</div>
                                     </div>
                                 </div>
                             }
@@ -265,16 +270,18 @@
                                 <i class="fas fa-box-open"></i>
                             </div>
                             <h4>Không tìm thấy sản phẩm nào</h4>
-                            <p>Hãy thử tìm kiếm với từ khóa khác hoặc thêm sản phẩm mới.</p>
-                            <div class="empty-actions">
+                            <p>Hãy thử tìm kiếm với từ khóa khác hoặc thêm sản phẩm mới.</p>                            <div class="empty-actions">
                                 <a href="@Url.Action("Index")" class="btn luxury-btn luxury-btn-outline">
                                     <i class="fas fa-refresh"></i>
                                     <span>Xem tất cả</span>
                                 </a>
-                                <a asp-action="Create" class="btn luxury-btn luxury-btn-primary">
-                                    <i class="fas fa-plus"></i>
-                                    <span>Thêm sản phẩm</span>
-                                </a>
+                                @if (User.IsInRole(SD.Role_Admin))
+                                {
+                                    <a asp-action="Create" class="btn luxury-btn luxury-btn-primary">
+                                        <i class="fas fa-plus"></i>
+                                        <span>Thêm sản phẩm</span>
+                                    </a>
+                                }
                             </div>
                         </div>
                     }

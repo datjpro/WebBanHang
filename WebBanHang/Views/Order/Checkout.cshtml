@@ -1,0 +1,145 @@
+@model WebBanHang.Models.Order
+
+@{
+    ViewData["Title"] = "Thanh toán";
+    var cartItems = ViewBag.CartItems as IEnumerable<WebBanHang.Models.CartItem>;
+}
+
+<div class="container-fluid py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card shadow-lg border-0">
+                <div class="card-header bg-gradient-primary text-white py-3">
+                    <h3 class="mb-0">
+                        <i class="fas fa-credit-card me-2"></i>
+                        Thanh toán đơn hàng
+                    </h3>
+                </div>
+
+                <div class="card-body p-4">
+                    <form asp-action="Checkout" method="post" id="checkoutForm">
+                        <div class="row">
+                            <!-- Thông tin giao hàng -->
+                            <div class="col-lg-6">
+                                <h5 class="fw-bold mb-3">
+                                    <i class="fas fa-truck me-2 text-primary"></i>
+                                    Thông tin giao hàng
+                                </h5>
+                                
+                                <div class="mb-3">
+                                    <label asp-for="ShippingAddress" class="form-label fw-semibold">Địa chỉ giao hàng</label>
+                                    <textarea asp-for="ShippingAddress" class="form-control form-control-lg" rows="3" 
+                                              placeholder="Nhập địa chỉ giao hàng chi tiết..."></textarea>
+                                    <span asp-validation-for="ShippingAddress" class="text-danger"></span>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label asp-for="Notes" class="form-label fw-semibold">Ghi chú (tuỳ chọn)</label>
+                                    <textarea asp-for="Notes" class="form-control" rows="2" 
+                                              placeholder="Ghi chú thêm cho đơn hàng..."></textarea>
+                                    <span asp-validation-for="Notes" class="text-danger"></span>
+                                </div>
+                            </div>
+
+                            <!-- Thông tin đơn hàng -->
+                            <div class="col-lg-6">
+                                <h5 class="fw-bold mb-3">
+                                    <i class="fas fa-shopping-cart me-2 text-primary"></i>
+                                    Thông tin đơn hàng
+                                </h5>
+
+                                <div class="border rounded p-3 mb-3" style="background-color: #f8f9fa;">
+                                    @if (cartItems != null && cartItems.Any())
+                                    {
+                                        @foreach (var item in cartItems)
+                                        {
+                                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                                <div class="d-flex align-items-center">
+                                                    @if (!string.IsNullOrEmpty(item.Product?.ImageUrl))
+                                                    {
+                                                        <img src="@item.Product.ImageUrl" alt="@item.Product?.Name" 
+                                                             class="rounded me-2" style="width: 40px; height: 40px; object-fit: cover;">
+                                                    }
+                                                    <div>
+                                                        <span class="fw-semibold">@item.Product?.Name</span>
+                                                        <br>
+                                                        <small class="text-muted">Số lượng: @item.Quantity</small>
+                                                    </div>
+                                                </div>
+                                                <span class="fw-bold text-primary">
+                                                    @((item.Price * item.Quantity).ToString("C0", new System.Globalization.CultureInfo("vi-VN")))
+                                                </span>
+                                            </div>
+                                            @if (item != cartItems.Last())
+                                            {
+                                                <hr class="my-2">
+                                            }
+                                        }
+                                        
+                                        <hr class="my-3">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <h6 class="fw-bold mb-0">Tổng cộng:</h6>
+                                            <h5 class="fw-bold text-success mb-0">
+                                                @Model.TotalPrice.ToString("C0", new System.Globalization.CultureInfo("vi-VN"))
+                                            </h5>
+                                        </div>
+                                    }
+                                </div>
+
+                                <div class="d-grid gap-2">
+                                    <button type="submit" class="btn btn-success btn-lg" id="btnCheckout">
+                                        <i class="fas fa-lock me-2"></i>
+                                        Đặt hàng ngay
+                                    </button>
+                                    <a href="@Url.Action("Index", "ShoppingCart")" class="btn btn-outline-secondary">
+                                        <i class="fas fa-arrow-left me-2"></i>
+                                        Quay lại giỏ hàng
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .bg-gradient-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+    
+    .card {
+        border-radius: 15px;
+        overflow: hidden;
+    }
+    
+    .form-control:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+    }
+    
+    .btn-success {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        border: none;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-success:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(40, 167, 69, 0.3);
+    }
+</style>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    
+    <script>
+        document.getElementById('checkoutForm').addEventListener('submit', function(e) {
+            const btn = document.getElementById('btnCheckout');
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Đang xử lý...';
+            btn.disabled = true;
+        });
+    </script>
+}

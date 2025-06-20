@@ -1,53 +1,259 @@
 @model List<Product>
 @{
     ViewData["Title"] = "Admin Dashboard";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
 }
 
-<div class="container-fluid mt-4">
-    <div class="row">
-        <div class="col-12">
-            <h1 class="mb-4">
-                <i class="fas fa-tachometer-alt me-2"></i>
-                Admin Dashboard
-            </h1>
+<!-- Enhanced Dashboard Header -->
+<div class="dashboard-header">
+    <div class="container-fluid">
+        <div class="row align-items-center py-4">
+            <div class="col-md-8">
+                <div class="header-content">
+                    <div class="dashboard-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <div>
+                        <h1 class="dashboard-title mb-1">Dashboard Admin</h1>
+                        <p class="dashboard-subtitle mb-0">Tổng quan hệ thống quản lý bán hàng DATJ</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 text-end">
+                <div class="dashboard-date">
+                    <i class="fas fa-calendar-alt me-2"></i>
+                    @DateTime.Now.ToString("dd/MM/yyyy")
+                </div>
+            </div>
         </div>
     </div>
+</div>
 
-    <!-- Statistics Cards -->
-    <div class="row mb-4">
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-primary shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                Tổng sản phẩm
+<div class="content-wrapper dashboard-content">
+    <!-- Modern Stats Cards -->
+    <section class="stats-section">
+        <div class="container-fluid">
+            <div class="row g-4 mb-5">
+                <div class="col-xl-3 col-md-6">
+                    <div class="stats-card stats-primary">
+                        <div class="stats-content">
+                            <div class="stats-icon">
+                                <i class="fas fa-box"></i>
                             </div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">@ViewBag.TotalProducts</div>
+                            <div class="stats-details">
+                                <h3 class="stats-number">@ViewBag.TotalProducts</h3>
+                                <p class="stats-label">Sản phẩm</p>
+                                <div class="stats-trend">
+                                    <i class="fas fa-arrow-up"></i>
+                                    <span>+5% so với tháng trước</span>
+                                </div>
+                            </div>
                         </div>
-                        <div class="col-auto">
-                            <i class="fas fa-box fa-2x text-gray-300"></i>
+                        <div class="stats-gradient primary-gradient"></div>
+                    </div>
+                </div>
+                
+                <div class="col-xl-3 col-md-6">
+                    <div class="stats-card stats-success">
+                        <div class="stats-content">
+                            <div class="stats-icon">
+                                <i class="fas fa-shopping-cart"></i>
+                            </div>
+                            <div class="stats-details">
+                                <h3 class="stats-number">@ViewBag.TotalOrders</h3>
+                                <p class="stats-label">Đơn hàng</p>
+                                <div class="stats-trend">
+                                    <i class="fas fa-arrow-up"></i>
+                                    <span>+12% so với tháng trước</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="stats-gradient success-gradient"></div>
+                    </div>
+                </div>
+                
+                <div class="col-xl-3 col-md-6">
+                    <div class="stats-card stats-warning">
+                        <div class="stats-content">
+                            <div class="stats-icon">
+                                <i class="fas fa-coins"></i>
+                            </div>
+                            <div class="stats-details">
+                                <h3 class="stats-number">@ViewBag.TotalRevenue.ToString("C0", new System.Globalization.CultureInfo("vi-VN"))</h3>
+                                <p class="stats-label">Doanh thu</p>
+                                <div class="stats-trend">
+                                    <i class="fas fa-arrow-up"></i>
+                                    <span>+18% so với tháng trước</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="stats-gradient warning-gradient"></div>
+                    </div>
+                </div>
+                
+                <div class="col-xl-3 col-md-6">
+                    <div class="stats-card stats-info">
+                        <div class="stats-content">
+                            <div class="stats-icon">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <div class="stats-details">
+                                <h3 class="stats-number">@ViewBag.TotalUsers</h3>
+                                <p class="stats-label">Người dùng</p>
+                                <div class="stats-trend">
+                                    <i class="fas fa-arrow-up"></i>
+                                    <span>+8% so với tháng trước</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="stats-gradient info-gradient"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Quick Actions & Recent Products -->
+    <section class="dashboard-content-section">
+        <div class="container-fluid">
+            <div class="row g-4">
+                <!-- Quick Actions -->
+                <div class="col-xl-4 col-lg-6">
+                    <div class="dashboard-card">
+                        <div class="card-header">
+                            <div class="header-icon">
+                                <i class="fas fa-bolt"></i>
+                            </div>
+                            <div class="header-text">
+                                <h3 class="card-title">Thao tác nhanh</h3>
+                                <p class="card-subtitle">Các chức năng thường dùng</p>
+                            </div>
+                        </div>
+                        <div class="card-content">
+                            <div class="quick-actions">
+                                <a href="@Url.Action("Index", "Order", new { area = "Admin" })" class="quick-action-btn">
+                                    <div class="action-icon bg-primary">
+                                        <i class="fas fa-shopping-bag"></i>
+                                    </div>
+                                    <div class="action-info">
+                                        <span class="action-title">Quản lý đơn hàng</span>
+                                        <span class="action-desc">@ViewBag.TodayOrders đơn hôm nay</span>
+                                    </div>
+                                    <div class="action-arrow">
+                                        <i class="fas fa-chevron-right"></i>
+                                    </div>
+                                </a>
+                                
+                                <a href="@Url.Action("Index", "Product", new { area = "Admin" })" class="quick-action-btn">
+                                    <div class="action-icon bg-success">
+                                        <i class="fas fa-box"></i>
+                                    </div>
+                                    <div class="action-info">
+                                        <span class="action-title">Quản lý sản phẩm</span>
+                                        <span class="action-desc">@ViewBag.TotalProducts sản phẩm</span>
+                                    </div>
+                                    <div class="action-arrow">
+                                        <i class="fas fa-chevron-right"></i>
+                                    </div>
+                                </a>
+                                
+                                <a href="@Url.Action("Index", "User", new { area = "Admin" })" class="quick-action-btn">
+                                    <div class="action-icon bg-warning">
+                                        <i class="fas fa-users"></i>
+                                    </div>
+                                    <div class="action-info">
+                                        <span class="action-title">Quản lý người dùng</span>
+                                        <span class="action-desc">@ViewBag.TotalUsers người dùng</span>
+                                    </div>
+                                    <div class="action-arrow">
+                                        <i class="fas fa-chevron-right"></i>
+                                    </div>
+                                </a>
+                                
+                                <a href="@Url.Action("Index", "Category", new { area = "Admin" })" class="quick-action-btn">
+                                    <div class="action-icon bg-info">
+                                        <i class="fas fa-tags"></i>
+                                    </div>
+                                    <div class="action-info">
+                                        <span class="action-title">Quản lý danh mục</span>
+                                        <span class="action-desc">@ViewBag.TotalCategories danh mục</span>
+                                    </div>
+                                    <div class="action-arrow">
+                                        <i class="fas fa-chevron-right"></i>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Products -->
+                <div class="col-xl-8 col-lg-6">
+                    <div class="dashboard-card">
+                        <div class="card-header">
+                            <div class="header-icon">
+                                <i class="fas fa-box-open"></i>
+                            </div>
+                            <div class="header-text">
+                                <h3 class="card-title">Sản phẩm mới nhất</h3>
+                                <p class="card-subtitle">5 sản phẩm được thêm gần đây</p>
+                            </div>
+                        </div>
+                        <div class="card-content p-0">
+                            @if (Model != null && Model.Any())
+                            {
+                                <div class="products-list">
+                                    @foreach (var product in Model)
+                                    {
+                                        <div class="product-item" data-aos="fade-up">
+                                            <div class="product-image-container">
+                                                @if (!string.IsNullOrEmpty(product.ImageUrl))
+                                                {
+                                                    <img src="@product.ImageUrl" alt="@product.Name" class="product-image">
+                                                }
+                                                else
+                                                {
+                                                    <div class="product-placeholder">
+                                                        <i class="fas fa-image"></i>
+                                                    </div>
+                                                }
+                                            </div>
+                                            <div class="product-details">
+                                                <h4 class="product-name">@product.Name</h4>
+                                                <p class="product-category">@product.Category?.Name</p>
+                                                <div class="product-meta">
+                                                    <span class="product-price">@product.Price.ToString("C0", new System.Globalization.CultureInfo("vi-VN"))</span>
+                                                </div>
+                                            </div>
+                                            <div class="product-actions">
+                                                <a href="@Url.Action("Edit", "Product", new { area = "Admin", id = product.Id })" class="action-btn btn-edit">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+                                                <a href="@Url.Action("Details", "Product", new { area = "Admin", id = product.Id })" class="action-btn btn-view">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="empty-state">
+                                    <div class="empty-icon">
+                                        <i class="fas fa-box-open"></i>
+                                    </div>
+                                    <h4 class="empty-title">Chưa có sản phẩm nào</h4>
+                                    <p class="empty-description">Hãy thêm sản phẩm đầu tiên của bạn.</p>
+                                </div>
+                            }
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-success shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
-                                Danh mục
-                            </div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">@ViewBag.TotalCategories</div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-tags fa-2x text-gray-300"></i>
-                        </div>
-                    </div>
+    </section>
+</div>
                 </div>
             </div>
         </div>

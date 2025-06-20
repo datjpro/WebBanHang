@@ -128,14 +128,13 @@
                                     </span>
                                 </div>
                             </div>
-                            
-                            <div class="checkout-actions">
-                                <button class="btn luxury-btn primary-btn w-100 mb-3">
+                              <div class="checkout-actions">
+                                <a href="@Url.Action("Checkout", "Order")" class="btn luxury-btn primary-btn w-100 mb-3">
                                     <i class="fas fa-credit-card me-2"></i>Thanh toán ngay
-                                </button>
-                                <button class="btn luxury-btn outline-btn w-100">
-                                    <i class="fas fa-save me-2"></i>Lưu giỏ hàng
-                                </button>
+                                </a>
+                                <a href="@Url.Action("Index", "Order")" class="btn luxury-btn outline-btn w-100">
+                                    <i class="fas fa-list me-2"></i>Xem đơn hàng
+                                </a>
                             </div>
                             
                             <!-- Promo Code -->

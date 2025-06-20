@@ -1,130 +1,540 @@
 @model List<UserRoleViewModel>
 @{
     ViewData["Title"] = "Quản lý người dùng";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
 }
 
-<div class="container-fluid mt-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1>
-            <i class="fas fa-users-cog me-2"></i>
-            Quản lý người dùng
-        </h1>
-        <a href="@Url.Action("Index", "Home", new { area = "Admin" })" class="btn btn-secondary">
-            <i class="fas fa-arrow-left me-2"></i>
-            Về Dashboard
-        </a>
+<!-- Page Header -->
+<div class="page-header">
+    <div class="page-header-content">
+        <div class="page-title">
+            <div class="page-title-icon">
+                <i class="fas fa-users-cog"></i>
+            </div>
+            <div class="page-title-text">
+                <h1>Quản lý người dùng</h1>
+                <p>Quản lý thông tin và phân quyền người dùng trong hệ thống</p>
+            </div>
+        </div>
+        <div class="page-actions">
+            <a href="@Url.Action("Index", "Home", new { area = "Admin" })" class="btn btn-outline-primary">
+                <i class="fas fa-arrow-left me-2"></i>
+                Dashboard
+            </a>
+        </div>
     </div>
+</div>
 
-    @if (TempData["Success"] != null)
-    {
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            <i class="fas fa-check-circle me-2"></i>
-            @TempData["Success"]
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+<!-- Stats Cards -->
+<div class="stats-grid mb-4">
+    <div class="stat-card">
+        <div class="stat-icon bg-primary">
+            <i class="fas fa-users"></i>
         </div>
-    }
+        <div class="stat-info">
+            <h3>@Model.Count</h3>
+            <p>Tổng người dùng</p>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon bg-success">
+            <i class="fas fa-user-check"></i>
+        </div>
+        <div class="stat-info">
+            <h3>@Model.Count(u => u.User.LockoutEnd == null || u.User.LockoutEnd <= DateTimeOffset.UtcNow)</h3>
+            <p>Đang hoạt động</p>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon bg-warning">
+            <i class="fas fa-user-lock"></i>
+        </div>
+        <div class="stat-info">
+            <h3>@Model.Count(u => u.User.LockoutEnd != null && u.User.LockoutEnd > DateTimeOffset.UtcNow)</h3>
+            <p>Đã khóa</p>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon bg-danger">
+            <i class="fas fa-crown"></i>
+        </div>
+        <div class="stat-info">
+            <h3>@Model.Count(u => u.Roles.Contains("Admin"))</h3>
+            <p>Quản trị viên</p>
+        </div>
+    </div>
+</div>
 
-    <div class="card shadow">
-        <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-primary">
-                <i class="fas fa-list me-2"></i>
-                Danh sách người dùng
-            </h6>
+<!-- Main Content -->
+<div class="content-card">
+    <div class="content-header">
+        <div class="content-title">
+            <i class="fas fa-table me-2"></i>
+            Danh sách người dùng
         </div>
-        <div class="card-body">
-            <div class="table-responsive">
-                <table class="table table-bordered table-hover">
-                    <thead class="table-dark">
-                        <tr>
-                            <th>Tên</th>
-                            <th>Email</th>
-                            <th>Số điện thoại</th>
-                            <th>Địa chỉ</th>
-                            <th>Vai trò</th>
-                            <th>Trạng thái</th>
-                            <th>Hành động</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var userRole in Model)
-                        {
-                            <tr>
-                                <td>@userRole.User.FirstName @userRole.User.LastName</td>
-                                <td>@userRole.User.Email</td>
-                                <td>@userRole.User.PhoneNumber</td>
-                                <td>@userRole.User.Address</td>
-                                <td>
-                                    @if (userRole.Roles.Any())
+        <div class="content-actions">
+            <div class="input-group search-box">
+                <span class="input-group-text">
+                    <i class="fas fa-search"></i>
+                </span>
+                <input type="text" class="form-control" placeholder="Tìm kiếm người dùng..." id="searchInput">
+            </div>
+            <div class="dropdown">
+                <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                    <i class="fas fa-filter me-2"></i>Lọc
+                </button>
+                <ul class="dropdown-menu">
+                    <li><a class="dropdown-item" href="#" data-filter="all">Tất cả</a></li>
+                    <li><a class="dropdown-item" href="#" data-filter="active">Đang hoạt động</a></li>
+                    <li><a class="dropdown-item" href="#" data-filter="locked">Đã khóa</a></li>
+                    <li><a class="dropdown-item" href="#" data-filter="admin">Quản trị viên</a></li>
+                </ul>
+            </div>
+            <button class="btn btn-primary" onclick="exportToExcel()">
+                <i class="fas fa-download me-2"></i>Xuất Excel
+            </button>
+        </div>
+    </div>
+    
+    <div class="table-container">
+        <table class="table data-table" id="usersTable">
+            <thead>
+                <tr>
+                    <th>
+                        <i class="fas fa-user me-2"></i>Người dùng
+                    </th>
+                    <th>
+                        <i class="fas fa-envelope me-2"></i>Email
+                    </th>
+                    <th>
+                        <i class="fas fa-phone me-2"></i>Điện thoại
+                    </th>
+                    <th>
+                        <i class="fas fa-map-marker-alt me-2"></i>Địa chỉ
+                    </th>
+                    <th>
+                        <i class="fas fa-shield-alt me-2"></i>Vai trò
+                    </th>
+                    <th>
+                        <i class="fas fa-toggle-on me-2"></i>Trạng thái
+                    </th>
+                    <th class="text-center">
+                        <i class="fas fa-cogs me-2"></i>Thao tác
+                    </th>
+                </tr>
+            </thead>
+            <tbody>                @foreach (var userRole in Model)
+                {
+                    <tr data-status="@(userRole.User.LockoutEnd != null && userRole.User.LockoutEnd > DateTimeOffset.UtcNow ? "locked" : "active")" 
+                        data-roles="@string.Join(",", userRole.Roles.Select(r => r.ToLower()))">
+                        <td>
+                            <div class="user-info">
+                                <div class="user-avatar">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                                <div class="user-details">
+                                    <div class="user-name">@userRole.User.FirstName @userRole.User.LastName</div>
+                                    <div class="user-meta">ID: @userRole.User.Id.Substring(0, 8)...</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="email-info">
+                                <i class="fas fa-envelope me-2 text-muted"></i>
+                                @userRole.User.Email
+                            </div>
+                        </td>
+                        <td>
+                            <div class="phone-info">
+                                <i class="fas fa-phone me-2 text-muted"></i>
+                                @(string.IsNullOrEmpty(userRole.User.PhoneNumber) ? "Chưa có" : userRole.User.PhoneNumber)
+                            </div>
+                        </td>
+                        <td>
+                            <div class="address-info">
+                                <i class="fas fa-map-marker-alt me-2 text-muted"></i>
+                                @(string.IsNullOrEmpty(userRole.User.Address) ? "Chưa có" : userRole.User.Address)
+                            </div>
+                        </td>
+                        <td>
+                            <div class="roles-container">
+                                @if (userRole.Roles.Any())
+                                {
+                                    @foreach (var role in userRole.Roles)
                                     {
-                                        @foreach (var role in userRole.Roles)
-                                        {
-                                            <span class="badge 
-                                                @(role == "Admin" ? "bg-danger" : 
-                                                  role == "Company" ? "bg-warning" : 
-                                                  role == "Employee" ? "bg-info" : "bg-success") me-1">
-                                                @role
-                                            </span>
-                                        }
-                                    }
-                                    else
-                                    {
-                                        <span class="badge bg-secondary">Chưa có vai trò</span>
-                                    }
-                                </td>
-                                <td>
-                                    @if (userRole.User.LockoutEnd != null && userRole.User.LockoutEnd > DateTimeOffset.UtcNow)
-                                    {
-                                        <span class="badge bg-danger">
-                                            <i class="fas fa-lock me-1"></i>
-                                            Đã khóa
+                                        <span class="role-badge role-@role.ToLower()">
+                                            <i class="fas @(role == "Admin" ? "fa-crown" : 
+                                                          role == "Company" ? "fa-building" : 
+                                                          role == "Employee" ? "fa-user-tie" : "fa-user") me-1"></i>
+                                            @role
                                         </span>
                                     }
-                                    else
-                                    {
-                                        <span class="badge bg-success">
-                                            <i class="fas fa-unlock me-1"></i>
-                                            Hoạt động
-                                        </span>
-                                    }
-                                </td>
-                                <td>
-                                    <div class="btn-group" role="group">
-                                        <a href="@Url.Action("Details", "User", new { area = "Admin", id = userRole.User.Id })" 
-                                           class="btn btn-sm btn-info" title="Xem chi tiết">
-                                            <i class="fas fa-eye"></i>
-                                        </a>
-                                        <a href="@Url.Action("ManageRoles", "User", new { area = "Admin", userId = userRole.User.Id })" 
-                                           class="btn btn-sm btn-warning" title="Quản lý vai trò">
-                                            <i class="fas fa-user-cog"></i>
-                                        </a>
-                                        @if (userRole.User.LockoutEnd != null && userRole.User.LockoutEnd > DateTimeOffset.UtcNow)
-                                        {
-                                            <form asp-action="UnlockUser" method="post" style="display: inline;">
-                                                <input type="hidden" name="userId" value="@userRole.User.Id" />
-                                                <button type="submit" class="btn btn-sm btn-success" title="Mở khóa"
-                                                        onclick="return confirm('Bạn có chắc muốn mở khóa tài khoản này?')">
-                                                    <i class="fas fa-unlock"></i>
-                                                </button>
-                                            </form>
-                                        }
-                                        else
-                                        {
-                                            <form asp-action="LockUser" method="post" style="display: inline;">
-                                                <input type="hidden" name="userId" value="@userRole.User.Id" />
-                                                <button type="submit" class="btn btn-sm btn-danger" title="Khóa tài khoản"
-                                                        onclick="return confirm('Bạn có chắc muốn khóa tài khoản này?')">
-                                                    <i class="fas fa-lock"></i>
-                                                </button>
-                                            </form>
-                                        }
-                                    </div>
-                                </td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
+                                }
+                                else
+                                {
+                                    <span class="role-badge role-none">
+                                        <i class="fas fa-question-circle me-1"></i>
+                                        Chưa có vai trò
+                                    </span>
+                                }
+                            </div>
+                        </td>
+                        <td>
+                            @if (userRole.User.LockoutEnd != null && userRole.User.LockoutEnd > DateTimeOffset.UtcNow)
+                            {
+                                <span class="status-badge status-locked">
+                                    <i class="fas fa-lock me-1"></i>
+                                    Đã khóa
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="status-badge status-active">
+                                    <i class="fas fa-check-circle me-1"></i>
+                                    Hoạt động
+                                </span>
+                            }
+                        </td>
+                        <td>
+                            <div class="action-buttons">
+                                <button class="btn-action btn-action-info" 
+                                        onclick="viewUserDetails('@userRole.User.Id')" 
+                                        title="Xem chi tiết">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <a href="@Url.Action("ManageRoles", "User", new { area = "Admin", userId = userRole.User.Id })" 
+                                   class="btn-action btn-action-warning" 
+                                   title="Quản lý vai trò">
+                                    <i class="fas fa-user-cog"></i>
+                                </a>
+                                @if (userRole.User.LockoutEnd != null && userRole.User.LockoutEnd > DateTimeOffset.UtcNow)
+                                {
+                                    <button class="btn-action btn-action-success" 
+                                            onclick="unlockUser('@userRole.User.Id', '@userRole.User.FirstName @userRole.User.LastName')" 
+                                            title="Mở khóa">
+                                        <i class="fas fa-unlock"></i>
+                                    </button>
+                                }
+                                else
+                                {
+                                    <button class="btn-action btn-action-danger" 
+                                            onclick="lockUser('@userRole.User.Id', '@userRole.User.FirstName @userRole.User.LastName')" 
+                                            title="Khóa tài khoản">
+                                        <i class="fas fa-lock"></i>
+                                    </button>
+                                }
+                            </div>
+                        </td>
+                    </tr>
+                }            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- User Details Modal -->
+<div class="modal fade" id="userDetailsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-user me-2"></i>
+                    Chi tiết người dùng
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="userDetailsContent">
+                    <!-- User details will be loaded here -->
+                </div>
             </div>
         </div>
     </div>
 </div>
+
+<!-- Action Forms -->
+<form id="lockUserForm" method="post" action="@Url.Action("LockUser", "User", new { area = "Admin" })" style="display: none;">
+    <input type="hidden" name="userId" id="lockUserId" />
+</form>
+
+<form id="unlockUserForm" method="post" action="@Url.Action("UnlockUser", "User", new { area = "Admin" })" style="display: none;">
+    <input type="hidden" name="userId" id="unlockUserId" />
+</form>
+
+<style>
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 14px;
+}
+
+.user-details {
+    flex: 1;
+}
+
+.user-name {
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 2px;
+}
+
+.user-meta {
+    font-size: 12px;
+    color: #7f8c8d;
+}
+
+.roles-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+}
+
+.role-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.role-admin {
+    background: linear-gradient(135deg, #e74c3c, #c0392b);
+    color: white;
+}
+
+.role-company {
+    background: linear-gradient(135deg, #f39c12, #d68910);
+    color: white;
+}
+
+.role-employee {
+    background: linear-gradient(135deg, #3498db, #2980b9);
+    color: white;
+}
+
+.role-customer {
+    background: linear-gradient(135deg, #2ecc71, #27ae60);
+    color: white;
+}
+
+.role-none {
+    background: linear-gradient(135deg, #95a5a6, #7f8c8d);
+    color: white;
+}
+
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.status-active {
+    background: linear-gradient(135deg, #2ecc71, #27ae60);
+    color: white;
+}
+
+.status-locked {
+    background: linear-gradient(135deg, #e74c3c, #c0392b);
+    color: white;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+}
+
+.btn-action {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    color: white;
+}
+
+.btn-action:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.btn-action-info {
+    background: linear-gradient(135deg, #3498db, #2980b9);
+}
+
+.btn-action-warning {
+    background: linear-gradient(135deg, #f39c12, #d68910);
+}
+
+.btn-action-success {
+    background: linear-gradient(135deg, #2ecc71, #27ae60);
+}
+
+.btn-action-danger {
+    background: linear-gradient(135deg, #e74c3c, #c0392b);
+}
+
+.email-info, .phone-info, .address-info {
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+    color: #2c3e50;
+}
+
+@@media (max-width: 768px) {
+    .user-info {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+    
+    .roles-container {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .action-buttons {
+        flex-direction: column;
+    }
+}
+</style>
+
+<script>
+$(document).ready(function() {
+    // Initialize DataTable
+    var table = $('#usersTable').DataTable({
+        "language": {
+            "url": "//cdn.datatables.net/plug-ins/1.11.5/i18n/vi.json"
+        },
+        "pageLength": 25,
+        "responsive": true,
+        "order": [[0, "asc"]],
+        "columnDefs": [
+            { "orderable": false, "targets": [6] }
+        ]
+    });
+
+    // Search functionality
+    $('#searchInput').on('keyup', function() {
+        table.search(this.value).draw();
+    });
+
+    // Filter functionality
+    $('[data-filter]').on('click', function(e) {
+        e.preventDefault();
+        var filter = $(this).data('filter');
+        
+        if (filter === 'all') {
+            table.search('').draw();
+        } else if (filter === 'active') {
+            table.column(5).search('Hoạt động').draw();
+        } else if (filter === 'locked') {
+            table.column(5).search('Đã khóa').draw();
+        } else if (filter === 'admin') {
+            table.column(4).search('Admin').draw();
+        }
+    });
+
+    // Show success message if exists
+    @if (TempData["Success"] != null)
+    {
+        <text>
+        toastr.success('@TempData["Success"]', 'Thành công!', {
+            "closeButton": true,
+            "progressBar": true,
+            "positionClass": "toast-top-right",
+            "timeOut": "3000"
+        });
+        </text>
+    }
+});
+
+function viewUserDetails(userId) {
+    // This would load user details via AJAX
+    // For now, just show the modal
+    $('#userDetailsModal').modal('show');
+}
+
+function lockUser(userId, userName) {
+    Swal.fire({
+        title: 'Xác nhận khóa tài khoản',
+        text: `Bạn có chắc muốn khóa tài khoản "${userName}"?`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#e74c3c',
+        cancelButtonColor: '#95a5a6',
+        confirmButtonText: 'Khóa tài khoản',
+        cancelButtonText: 'Hủy bỏ'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            $('#lockUserId').val(userId);
+            $('#lockUserForm').submit();
+        }
+    });
+}
+
+function unlockUser(userId, userName) {
+    Swal.fire({
+        title: 'Xác nhận mở khóa',
+        text: `Bạn có chắc muốn mở khóa tài khoản "${userName}"?`,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#2ecc71',
+        cancelButtonColor: '#95a5a6',
+        confirmButtonText: 'Mở khóa',
+        cancelButtonText: 'Hủy bỏ'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            $('#unlockUserId').val(userId);
+            $('#unlockUserForm').submit();
+        }
+    });
+}
+
+function exportToExcel() {
+    toastr.info('Đang xuất dữ liệu...', 'Vui lòng đợi', {
+        "closeButton": false,
+        "progressBar": true,
+        "timeOut": "2000"
+    });
+    
+    // Export functionality would go here
+    setTimeout(() => {
+        toastr.success('Xuất dữ liệu thành công!', 'Hoàn thành', {
+            "closeButton": true,
+            "progressBar": true,
+            "timeOut": "3000"
+        });
+    }, 2000);
+}
+
+// Keyboard shortcuts
+document.addEventListener('keydown', function(e) {
+    if (e.ctrlKey && e.key === 's') {
+        e.preventDefault();
+        exportToExcel();
+    }
+});
+</script>

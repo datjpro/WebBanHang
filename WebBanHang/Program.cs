@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
 using WebBanHang.Models;
 using WebBanHang.Repositories;
+using WebBanHang.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -31,6 +32,7 @@ builder.Services.AddScoped<IProductRepository, EFProductRepository>();
 builder.Services.AddScoped<ICategoryRepository, EFCategoryRepository>();
 builder.Services.AddScoped<IProductImageRepository, EFProductImageRepository>();
 builder.Services.AddScoped<ICartRepository, EFCartRepository>();
+builder.Services.AddScoped<IOrderRepository, EFOrderRepository>();
 
 builder.Services.AddDistributedMemoryCache();
 builder.Services.AddSession(options =>
@@ -67,5 +69,11 @@ app.MapControllerRoute(
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
+
+// Initialize database and create admin user
+using (var scope = app.Services.CreateScope())
+{
+    await DbInitializer.Initialize(scope.ServiceProvider);
+}
 
 app.Run();

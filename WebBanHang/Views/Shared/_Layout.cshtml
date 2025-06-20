@@ -1,4 +1,9 @@
-﻿<!DOCTYPE html>
+﻿@using Microsoft.AspNetCore.Identity
+@using WebBanHang.Models
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
+
+<!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="utf-8" />
@@ -13,7 +18,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
     @await RenderSectionAsync("Styles", required: false)
 </head>
-<body class="luxury-body">
+<body class="luxury-body @(User.IsInRole(SD.Role_Admin) ? "user-admin" : "")">
     <!-- Elegant Loading Screen -->
     <div id="loading-screen" class="luxury-loading">
         <div class="loading-content">
@@ -70,9 +75,8 @@
                             <span class="nav-text">Danh mục</span>
                             <div class="nav-underline"></div>
                         </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link luxury-nav-link" href="#">
+                    </li>                    <li class="nav-item">
+                        <a class="nav-link luxury-nav-link" asp-controller="About" asp-action="Index">
                             <span class="nav-text">Về chúng tôi</span>
                             <div class="nav-underline"></div>
                         </a>
@@ -132,77 +136,171 @@
                 </div>
             </div>
         </div>
-    </div>
+    </div>    <!-- Premium Luxury Footer -->
+    <footer class="premium-luxury-footer">
+        <!-- Elegant Wave Separator -->
+        <div class="footer-wave">
+            <svg viewBox="0 0 1440 120" xmlns="http://www.w3.org/2000/svg">
+                <path d="M0,64L30,74.7C60,85,120,107,180,101.3C240,96,300,64,360,58.7C420,53,480,75,540,85.3C600,96,660,96,720,90.7C780,85,840,75,900,80C960,85,1020,107,1080,106.7C1140,107,1200,85,1260,74.7C1320,64,1380,64,1410,64L1440,64L1440,120L1410,120C1380,120,1320,120,1260,120C1200,120,1140,120,1080,120C1020,120,960,120,900,120C840,120,780,120,720,120C660,120,600,120,540,120C480,120,420,120,360,120C300,120,240,120,180,120C120,120,60,120,30,120L0,120Z" fill="rgba(255,255,255,0.1)"/>
+            </svg>
+        </div>
 
-    <!-- Luxury Footer -->
-    <footer class="luxury-footer">
+        <!-- Newsletter Section -->
+        <div class="newsletter-section">
+            <div class="container">
+                <div class="newsletter-content">
+                    <div class="newsletter-header">
+                        <div class="newsletter-icon">
+                            <i class="fas fa-envelope-open-text"></i>
+                        </div>
+                        <h3 class="newsletter-title">Đăng ký nhận thông tin độc quyền</h3>
+                        <p class="newsletter-subtitle">Cập nhật các ưu đãi hấp dẫn và sản phẩm mới nhất từ DATJ MARKET</p>
+                    </div>
+                    <div class="newsletter-form-container">
+                        <form class="newsletter-form">
+                            <div class="input-wrapper">
+                                <input type="email" class="newsletter-input" placeholder="Nhập địa chỉ email của bạn..." required>
+                                <button type="submit" class="newsletter-btn">
+                                    <span class="btn-text">Đăng ký ngay</span>
+                                    <i class="fas fa-paper-plane"></i>
+                                </button>
+                            </div>
+                        </form>
+                        <p class="newsletter-privacy">
+                            <i class="fas fa-shield-alt"></i>
+                            Chúng tôi cam kết bảo mật thông tin của bạn
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Footer Content -->
         <div class="footer-main">
             <div class="container">
                 <div class="row">
-                    <div class="col-lg-4 col-md-6">
-                        <div class="footer-section">
-                            <div class="footer-brand">
-                                <i class="fas fa-crown footer-crown"></i>
-                                <h3>DATJ MARKET</h3>
-                                <p class="footer-tagline">Elevating Your Shopping Experience</p>
-                            </div>
-                            <p class="footer-description">
-                                Chúng tôi mang đến những sản phẩm cao cấp nhất với chất lượng vượt trội 
-                                và dịch vụ khách hàng tận tâm.
-                            </p>
-                            <div class="social-links">
-                                <a href="#" class="social-link"><i class="fab fa-facebook-f"></i></a>
-                                <a href="#" class="social-link"><i class="fab fa-instagram"></i></a>
-                                <a href="#" class="social-link"><i class="fab fa-twitter"></i></a>
-                                <a href="#" class="social-link"><i class="fab fa-linkedin-in"></i></a>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-2 col-md-6">
-                        <div class="footer-section">
-                            <h5 class="footer-title">Danh mục</h5>
-                            <ul class="footer-links">
-                                <li><a href="#">Điện thoại</a></li>
-                                <li><a href="#">Laptop</a></li>
-                                <li><a href="#">Phụ kiện</a></li>
-                                <li><a href="#">Đồng hồ</a></li>
-                                <li><a href="#">Thời trang</a></li>
-                            </ul>
-                        </div>
-                    </div>
-                    <div class="col-lg-2 col-md-6">
-                        <div class="footer-section">
-                            <h5 class="footer-title">Hỗ trợ</h5>
-                            <ul class="footer-links">
-                                <li><a href="#">Liên hệ</a></li>
-                                <li><a href="#">Hướng dẫn mua hàng</a></li>
-                                <li><a href="#">Chính sách đổi trả</a></li>
-                                <li><a href="#">Bảo hành</a></li>
-                                <li><a href="#">FAQ</a></li>
-                            </ul>
-                        </div>
-                    </div>
-                    <div class="col-lg-4 col-md-6">
-                        <div class="footer-section">
-                            <h5 class="footer-title">Nhận thông tin mới nhất</h5>
-                            <p>Đăng ký để nhận những ưu đãi và sản phẩm mới nhất</p>
-                            <div class="newsletter-form">
-                                <div class="input-group">
-                                    <input type="email" class="form-control newsletter-input" 
-                                           placeholder="Email của bạn...">
-                                    <button class="btn newsletter-btn" type="button">
-                                        <i class="fas fa-paper-plane"></i>
-                                    </button>
+                    <!-- Brand Section -->
+                    <div class="col-lg-4 col-md-6 mb-5">
+                        <div class="footer-brand-section">
+                            <div class="brand-logo">
+                                <div class="logo-icon">
+                                    <i class="fas fa-crown"></i>
+                                </div>
+                                <div class="logo-text">
+                                    <h2 class="brand-name">DATJ MARKET</h2>
+                                    <p class="brand-tagline">Elevating Your Shopping Experience</p>
                                 </div>
                             </div>
+                            <p class="brand-description">
+                                Chúng tôi tự hào mang đến những sản phẩm cao cấp nhất với chất lượng vượt trội, 
+                                dịch vụ khách hàng tận tâm và trải nghiệm mua sắm đẳng cấp.
+                            </p>
+                            
+                            <!-- Premium Features -->
+                            <div class="premium-features">
+                                <div class="feature-item">
+                                    <i class="fas fa-shipping-fast"></i>
+                                    <span>Giao hàng miễn phí</span>
+                                </div>
+                                <div class="feature-item">
+                                    <i class="fas fa-undo-alt"></i>
+                                    <span>Đổi trả 30 ngày</span>
+                                </div>
+                                <div class="feature-item">
+                                    <i class="fas fa-headset"></i>
+                                    <span>Hỗ trợ 24/7</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Links -->
+                    <div class="col-lg-2 col-md-6 mb-5">
+                        <div class="footer-section">
+                            <h5 class="section-title">
+                                <i class="fas fa-link section-icon"></i>
+                                Liên kết nhanh
+                            </h5>
+                            <ul class="footer-menu">
+                                <li><a href="#" class="menu-link">Trang chủ</a></li>
+                                <li><a href="#" class="menu-link">Sản phẩm</a></li>
+                                <li><a href="#" class="menu-link">Danh mục</a></li>
+                                <li><a href="#" class="menu-link">Khuyến mãi</a></li>
+                                <li><a href="#" class="menu-link">Về chúng tôi</a></li>
+                                <li><a href="#" class="menu-link">Liên hệ</a></li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Categories -->
+                    <div class="col-lg-2 col-md-6 mb-5">
+                        <div class="footer-section">
+                            <h5 class="section-title">
+                                <i class="fas fa-tags section-icon"></i>
+                                Danh mục
+                            </h5>
+                            <ul class="footer-menu">
+                                <li><a href="#" class="menu-link">Điện thoại</a></li>
+                                <li><a href="#" class="menu-link">Laptop</a></li>
+                                <li><a href="#" class="menu-link">Phụ kiện</a></li>
+                                <li><a href="#" class="menu-link">Đồng hồ</a></li>
+                                <li><a href="#" class="menu-link">Thời trang</a></li>
+                                <li><a href="#" class="menu-link">Gia dụng</a></li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Contact & Support -->
+                    <div class="col-lg-4 col-md-6 mb-5">
+                        <div class="footer-section">
+                            <h5 class="section-title">
+                                <i class="fas fa-headset section-icon"></i>
+                                Liên hệ & Hỗ trợ
+                            </h5>
+                            
+                            <!-- Contact Info -->
                             <div class="contact-info">
                                 <div class="contact-item">
-                                    <i class="fas fa-phone"></i>
-                                    <span>+84 123 456 789</span>
+                                    <div class="contact-icon">
+                                        <i class="fas fa-phone-alt"></i>
+                                    </div>
+                                    <div class="contact-details">
+                                        <span class="contact-label">Hotline</span>
+                                        <span class="contact-value">+84 123 456 789</span>
+                                    </div>
                                 </div>
                                 <div class="contact-item">
-                                    <i class="fas fa-envelope"></i>
-                                    <span>todat2207@gmail.com</span>
+                                    <div class="contact-icon">
+                                        <i class="fas fa-envelope"></i>
+                                    </div>
+                                    <div class="contact-details">
+                                        <span class="contact-label">Email</span>
+                                        <span class="contact-value">todat2207@gmail.com</span>
+                                    </div>
+                                </div>
+                                <div class="contact-item">
+                                    <div class="contact-icon">
+                                        <i class="fas fa-map-marker-alt"></i>
+                                    </div>
+                                    <div class="contact-details">
+                                        <span class="contact-label">Địa chỉ</span>
+                                        <span class="contact-value">Hà Nội, Việt Nam</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Business Hours -->
+                            <div class="business-hours">
+                                <h6 class="hours-title">Giờ làm việc</h6>
+                                <div class="hours-content">
+                                    <div class="hours-item">
+                                        <span>Thứ 2 - Thứ 6:</span>
+                                        <span>8:00 - 22:00</span>
+                                    </div>
+                                    <div class="hours-item">
+                                        <span>Thứ 7 - Chủ Nhật:</span>
+                                        <span>9:00 - 21:00</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -210,29 +308,71 @@
                 </div>
             </div>
         </div>
+
+        <!-- Social Media Section -->
+        <div class="social-section">
+            <div class="container">
+                <div class="social-content">
+                    <h6 class="social-title">Kết nối với chúng tôi</h6>
+                    <div class="social-links">
+                        <a href="#" class="social-link facebook" title="Facebook">
+                            <i class="fab fa-facebook-f"></i>
+                            <span class="social-label">Facebook</span>
+                        </a>
+                        <a href="#" class="social-link instagram" title="Instagram">
+                            <i class="fab fa-instagram"></i>
+                            <span class="social-label">Instagram</span>
+                        </a>
+                        <a href="#" class="social-link twitter" title="Twitter">
+                            <i class="fab fa-twitter"></i>
+                            <span class="social-label">Twitter</span>
+                        </a>
+                        <a href="#" class="social-link youtube" title="YouTube">
+                            <i class="fab fa-youtube"></i>
+                            <span class="social-label">YouTube</span>
+                        </a>
+                        <a href="#" class="social-link tiktok" title="TikTok">
+                            <i class="fab fa-tiktok"></i>
+                            <span class="social-label">TikTok</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer Bottom -->
         <div class="footer-bottom">
             <div class="container">
                 <div class="row align-items-center">
                     <div class="col-md-6">
-                        <p class="copyright">© 2025 DATJ MARKET. All rights reserved.</p>
-                    </div>                    <div class="col-md-6">
-                        <div class="footer-bottom-links">
-                            <a asp-controller="Home" asp-action="Privacy">Chính sách bảo mật</a>
-                            <a href="#">Điều khoản sử dụng</a>
-                            <a href="#">Cookie</a>
+                        <p class="copyright">
+                            <i class="fas fa-copyright"></i>
+                            2025 DATJ MARKET. All rights reserved. Made with <i class="fas fa-heart"></i> in Vietnam
+                        </p>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="footer-policies">
+                            <a href="#" class="policy-link">Chính sách bảo mật</a>
+                            <a href="#" class="policy-link">Điều khoản sử dụng</a>
+                            <a href="#" class="policy-link">Chính sách Cookie</a>
+                            <a href="#" class="policy-link">Sitemap</a>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    </footer>    
+
+        <!-- Back to top button -->
+        <button class="back-to-top" id="backToTop" title="Lên đầu trang">
+            <i class="fas fa-arrow-up"></i>
+        </button>
+    </footer>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
-    
-    <script>
+      <script>
         // Initialize AOS animations
         AOS.init({
             duration: 1000,
@@ -258,6 +398,87 @@
             } else {
                 navbar.classList.remove('scrolled');
             }
+        });
+
+        // Back to top button
+        const backToTopBtn = document.getElementById('backToTop');
+        
+        window.addEventListener('scroll', function() {
+            if (window.pageYOffset > 300) {
+                backToTopBtn.classList.add('visible');
+            } else {
+                backToTopBtn.classList.remove('visible');
+            }
+        });
+
+        backToTopBtn.addEventListener('click', function() {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+
+        // Newsletter form animation
+        document.querySelectorAll('.newsletter-form').forEach(form => {
+            const input = form.querySelector('.newsletter-input');
+            const button = form.querySelector('.newsletter-btn');
+            
+            input.addEventListener('focus', function() {
+                form.classList.add('focused');
+            });
+            
+            input.addEventListener('blur', function() {
+                if (!this.value) {
+                    form.classList.remove('focused');
+                }
+            });
+            
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                if (input.value && input.validity.valid) {
+                    button.innerHTML = '<i class="fas fa-check"></i>';
+                    button.classList.add('success');
+                    setTimeout(() => {
+                        button.innerHTML = '<span class="btn-text">Đăng ký ngay</span><i class="fas fa-paper-plane"></i>';
+                        button.classList.remove('success');
+                        input.value = '';
+                        form.classList.remove('focused');
+                    }, 2000);
+                }
+            });
+        });
+
+        // Social links hover effect
+        document.querySelectorAll('.social-link').forEach(link => {
+            link.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-5px) scale(1.1)';
+            });
+            
+            link.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0) scale(1)';
+            });
+        });
+
+        // Animate contact items on scroll
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver(function(entries) {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.contact-item, .premium-features .feature-item').forEach(item => {
+            item.style.opacity = '0';
+            item.style.transform = 'translateY(20px)';
+            item.style.transition = 'all 0.6s ease';
+            observer.observe(item);
         });
     </script>
     
